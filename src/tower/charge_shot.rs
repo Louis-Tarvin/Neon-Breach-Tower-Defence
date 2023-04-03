@@ -1,19 +1,17 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets};
 
-use super::Tower;
+use super::{Debuff, Tower, TowerPlaced, TowerType};
 
 #[derive(Component, Debug)]
 pub struct ChargeShot {
-    pub grid_pos: (i8, i8),
     pub range: f32,
     pub timer: Timer,
 }
 impl ChargeShot {
-    pub fn new(grid_pos: (i8, i8), range: f32, cooldown: f32) -> Self {
+    pub fn new(range: f32, cooldown: f32) -> Self {
         Self {
-            grid_pos,
             range,
             timer: Timer::from_seconds(cooldown, TimerMode::Repeating),
         }
@@ -26,6 +24,9 @@ pub struct ChargeShotProjectile {
     pub speed: f32,
     pub target: Entity,
 }
+
+#[derive(Component)]
+pub struct RangeIndicator {}
 
 pub fn shoot(
     mut commands: Commands,
@@ -106,4 +107,46 @@ pub fn handle_projectiles(
             commands.entity(entity).despawn();
         }
     }
+}
+
+pub fn spawn_charge_shot(
+    mut commands: Commands,
+    grid_pos: (i8, i8),
+    game_assets: Res<GameAssets>,
+    mut event_writer: EventWriter<TowerPlaced>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    mut map: ResMut<Map>,
+) {
+    let tower = Tower::new(
+        1.0,
+        1.0,
+        TowerType::ChargeShot,
+        Debuff::ReduceNeighbourDamage(20.0),
+    );
+    let entity = commands
+        .spawn(SpriteBundle {
+            texture: game_assets.charge_shot.clone(),
+            transform: Transform::from_translation(Vec3::new(
+                grid_pos.0 as f32 * 32.0,
+                grid_pos.1 as f32 * 32.0,
+                1.0,
+            )),
+            ..Default::default()
+        })
+        .insert(tower)
+        .insert(ChargeShot::new(1.0, 0.5))
+        .with_children(|parent| {
+            // Circle used to show the range of the tower
+            parent.spawn(MaterialMesh2dBundle {
+                mesh: meshes.add(shape::Circle::new(1.5 * 32.0).into()).into(),
+                material: materials.add(ColorMaterial::from(Color::rgba(1.0, 0.0, 0.0, 0.2))),
+                transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
+                visibility: Visibility::Hidden,
+                ..Default::default()
+            });
+        })
+        .id();
+    map.place_tower(grid_pos, entity).unwrap();
+    event_writer.send(TowerPlaced { grid_pos });
 }

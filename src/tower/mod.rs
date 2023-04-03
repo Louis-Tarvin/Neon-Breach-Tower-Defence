@@ -3,11 +3,12 @@ use bevy::prelude::*;
 use crate::grid::Map;
 
 pub mod charge_shot;
+pub mod laser;
 
 #[derive(Debug)]
 pub enum TowerType {
     ChargeShot,
-    // Laser,
+    Laser,
     // Sniper,
     // Rocket,
 }

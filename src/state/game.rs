@@ -19,6 +19,7 @@ impl Plugin for GamePlugin {
             .add_system(tower::debuff_event_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::handle_projectiles.in_set(OnUpdate(super::State::Game)))
+            .add_system(tower::laser::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(input::mouse_hover_handler.in_set(OnUpdate(super::State::Game)));
     }

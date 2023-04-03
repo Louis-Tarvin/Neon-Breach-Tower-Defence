@@ -7,6 +7,8 @@ use crate::state::loading::GameAssets;
 #[derive(Resource, Debug)]
 pub struct Map {
     pub grid: Vec<Vec<u8>>,
+    pub width: u8,
+    pub height: u8,
     pub start_pos: (i8, i8),
     pub placements: HashMap<(i8, i8), Entity>,
     pub enemies: HashMap<(i8, i8), Vec<Entity>>,
@@ -14,8 +16,12 @@ pub struct Map {
 }
 impl Map {
     pub fn new(grid: Vec<Vec<u8>>, start_pos: (i8, i8), path: Vec<(u8, u8)>) -> Self {
+        let width = grid[0].len() as u8;
+        let height = grid.len() as u8;
         Self {
             grid,
+            width,
+            height,
             start_pos,
             placements: HashMap::new(),
             enemies: HashMap::new(),
@@ -36,8 +42,8 @@ impl Map {
 
     pub fn is_valid_placement(&self, pos: (i8, i8)) -> bool {
         let (x, y) = pos;
-        if (x as usize) >= self.grid[0].len()
-            || (y as usize) >= self.grid.len()
+        if x >= self.width.try_into().unwrap()
+            || y >= self.height.try_into().unwrap()
             || x < 0
             || y < 0
             || self.grid[y as usize][x as usize] == 1

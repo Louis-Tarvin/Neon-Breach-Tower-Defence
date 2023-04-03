@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{core_pipeline::bloom::BloomSettings, prelude::*};
 use bevy_asset_loader::prelude::AssetCollection;
 
 #[derive(AssetCollection, Resource)]
@@ -13,6 +13,8 @@ pub struct GameAssets {
     pub buildable_tile: Handle<Image>,
     #[asset(path = "tiles/chargeshot.png")]
     pub charge_shot: Handle<Image>,
+    #[asset(path = "tiles/laser.png")]
+    pub laser: Handle<Image>,
     #[asset(path = "bullet.png")]
     pub bullet: Handle<Image>,
 }
@@ -21,7 +23,17 @@ pub struct GameAssets {
 pub struct LoadingNode;
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(Camera2dBundle::default());
+    commands.spawn((
+        Camera2dBundle {
+            camera: Camera {
+                hdr: true,
+                ..Default::default()
+            },
+            tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::TonyMcMapface,
+            ..Default::default()
+        },
+        BloomSettings::default(),
+    ));
     commands
         .spawn(NodeBundle {
             style: Style {
