@@ -29,19 +29,15 @@ pub struct ChargeShotProjectile {
 
 pub fn shoot(
     mut commands: Commands,
-    mut query: Query<(&mut ChargeShot, &Transform), Without<Enemy>>,
+    mut query: Query<(&Tower, &mut ChargeShot, &Transform), Without<Enemy>>,
     enemies: Query<(&Enemy, &Transform), Without<Tower>>,
     map: Res<Map>,
     time: Res<Time>,
     game_assets: Res<GameAssets>,
 ) {
-    for (mut charge_shot, transform) in query.iter_mut() {
+    for (tower, mut charge_shot, transform) in query.iter_mut() {
         charge_shot.timer.tick(time.delta());
         if charge_shot.timer.finished() {
-            let tower = map
-                .placements
-                .get(&charge_shot.grid_pos)
-                .expect("Charge shot location mismatch");
             // Find the enemy that has travelled the furthest and is within range
             let max_range = charge_shot.range.ceil() as i32;
             let mut furthest_enemy = None;

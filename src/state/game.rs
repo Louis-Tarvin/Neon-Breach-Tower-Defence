@@ -1,20 +1,26 @@
 use bevy::prelude::*;
 
-use crate::{enemies, grid, input, tower};
+use crate::{enemies, grid, input, tower, ui};
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup.in_schedule(OnEnter(super::State::Game)))
+        app.add_event::<tower::TowerPlaced>()
+            .add_event::<tower::AddDebuff>()
+            .insert_resource(ui::UIState::default())
+            .add_system(setup.in_schedule(OnEnter(super::State::Game)))
             .add_system(grid::load_map.in_schedule(OnEnter(super::State::Game)))
             .add_system(enemies::spawn_enemies.in_set(OnUpdate(super::State::Game)))
             .add_system(enemies::update_enemy_grid_pos.in_set(OnUpdate(super::State::Game)))
             .add_system(enemies::enemy_movement.in_set(OnUpdate(super::State::Game)))
             .add_system(enemies::check_killed.in_set(OnUpdate(super::State::Game)))
+            .add_system(tower::handle_tower_placement.in_set(OnUpdate(super::State::Game)))
+            .add_system(tower::debuff_event_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::handle_projectiles.in_set(OnUpdate(super::State::Game)))
-            .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)));
+            .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)))
+            .add_system(input::mouse_hover_handler.in_set(OnUpdate(super::State::Game)));
     }
 }
 

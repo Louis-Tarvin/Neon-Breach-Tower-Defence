@@ -31,7 +31,7 @@ pub fn update_enemy_grid_pos(
     for (entity, mut enemy, transform) in enemies.iter_mut() {
         let pos = transform.translation.truncate();
         let grid_pos = Map::get_grid_pos(pos);
-        let grid_pos = (grid_pos.0 as i8, grid_pos.1 as i8);
+        let grid_pos = (grid_pos.0, grid_pos.1);
         if grid_pos != enemy.current_grid_pos {
             // println!(
             // "Enemy moved from {:?} to {:?}",

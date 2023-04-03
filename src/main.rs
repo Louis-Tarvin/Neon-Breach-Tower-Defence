@@ -14,6 +14,7 @@ mod grid;
 mod input;
 mod state;
 mod tower;
+mod ui;
 
 fn main() {
     App::new()

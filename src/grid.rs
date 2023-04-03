@@ -2,16 +2,13 @@ use std::collections::HashMap;
 
 use bevy::prelude::*;
 
-use crate::{
-    state::loading::GameAssets,
-    tower::{Debuff, Tower},
-};
+use crate::state::loading::GameAssets;
 
 #[derive(Resource, Debug)]
 pub struct Map {
     pub grid: Vec<Vec<u8>>,
     pub start_pos: (i8, i8),
-    pub placements: HashMap<(i8, i8), Tower>,
+    pub placements: HashMap<(i8, i8), Entity>,
     pub enemies: HashMap<(i8, i8), Vec<Entity>>,
     pub path: Vec<(u8, u8)>,
 }
@@ -37,7 +34,7 @@ impl Map {
         Vec2::new(x * 32.0, y * 32.0)
     }
 
-    pub fn place_tower(&mut self, pos: (i8, i8), tower: Tower) -> Result<(), ()> {
+    pub fn is_valid_placement(&self, pos: (i8, i8)) -> bool {
         let (x, y) = pos;
         if (x as usize) >= self.grid[0].len()
             || (y as usize) >= self.grid.len()
@@ -46,31 +43,19 @@ impl Map {
             || self.grid[y as usize][x as usize] == 1
             || self.placements.contains_key(&(x, y))
         {
-            return Err(());
+            return false;
+        }
+        true
+    }
+
+    pub fn place_tower(&mut self, pos: (i8, i8), entity: Entity) -> Result<(), ()> {
+        let (x, y) = pos;
+        if self.is_valid_placement(pos) {
+            self.placements.insert((x, y), entity);
+            return Ok(());
         }
 
-        match &tower.debuff {
-            Debuff::ReduceNeighbourDamage(percent) => {
-                // left
-                if let Some(tower) = self.placements.get_mut(&(x - 1, y)) {
-                    tower.reduce_damage_by(*percent);
-                }
-                // right
-                if let Some(tower) = self.placements.get_mut(&(x + 1, y)) {
-                    tower.reduce_damage_by(*percent);
-                }
-                // down
-                if let Some(tower) = self.placements.get_mut(&(x, y - 1)) {
-                    tower.reduce_damage_by(*percent);
-                }
-                // up
-                if let Some(tower) = self.placements.get_mut(&(x, y + 1)) {
-                    tower.reduce_damage_by(*percent);
-                }
-            }
-        }
-        self.placements.insert((x, y), tower);
-        Ok(())
+        Err(())
     }
 }
 
