@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets};
 
-use super::{Debuff, Tower, TowerPlaced, TowerType};
+use super::{Tower, TowerPlaced};
 
 #[derive(Debug, Clone, Copy)]
 pub enum Direction {
@@ -22,6 +22,15 @@ impl Laser {
         Self {
             direction,
             timer: Timer::from_seconds(cooldown, TimerMode::Repeating),
+        }
+    }
+
+    pub fn toggle_direction(&mut self) {
+        self.direction = match self.direction {
+            Direction::Up => Direction::Right,
+            Direction::Right => Direction::Down,
+            Direction::Down => Direction::Left,
+            Direction::Left => Direction::Up,
         }
     }
 }
@@ -108,21 +117,16 @@ pub fn shoot(
 }
 
 pub fn spawn_laser(
+    tower: Tower,
     mut commands: Commands,
     grid_pos: (i8, i8),
     direction: Direction,
     game_assets: Res<GameAssets>,
     mut event_writer: EventWriter<TowerPlaced>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<ColorMaterial>>,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
     mut map: ResMut<Map>,
 ) {
-    let tower = Tower::new(
-        0.5,
-        3.0,
-        TowerType::Laser,
-        Debuff::ReduceNeighbourDamage(20.0),
-    );
     let rotation = match direction {
         Direction::Up => Quat::from_rotation_z(std::f32::consts::PI),
         Direction::Down => Quat::from_rotation_z(0.0),
@@ -144,41 +148,63 @@ pub fn spawn_laser(
         .insert(Laser::new(direction, 1.0 / 3.0))
         .with_children(|parent| {
             // Laser beam
-            let (beam_dimensions, beam_location) = match direction {
-                Direction::Up => {
-                    let height = (map.height as i8 - grid_pos.1) as f32 * 32.0 - 16.0;
-                    let y = (map.height as i8 - grid_pos.1 - 1) as f32 * 32.0 - height / 2.0;
-                    (Vec2::new(5.0, height), Vec3::new(0.0, -y - 16.0, 2.0))
-                }
-                Direction::Down => {
-                    let height = (grid_pos.1 + 1) as f32 * 32.0 - 16.0;
-                    let y = grid_pos.1 as f32 * 32.0 - height / 2.0;
-                    (Vec2::new(5.0, height), Vec3::new(0.0, -y - 16.0, 2.0))
-                }
-                Direction::Left => {
-                    let width = (grid_pos.0 + 1) as f32 * 32.0 - 16.0;
-                    let y = grid_pos.0 as f32 * 32.0 - width / 2.0;
-                    (Vec2::new(width, 5.0), Vec3::new(0.0, -y - 16.0, 2.0))
-                }
-                Direction::Right => {
-                    let width = (map.width as i8 - grid_pos.0) as f32 * 32.0 - 16.0;
-                    let y = (map.width as i8 - grid_pos.0 - 1) as f32 * 32.0 - width / 2.0;
-                    (Vec2::new(width, 5.0), Vec3::new(0.0, -y - 16.0, 2.0))
-                }
-            };
-            parent.spawn(MaterialMesh2dBundle {
-                mesh: meshes.add(shape::Quad::new(beam_dimensions).into()).into(),
-                material: materials.add(ColorMaterial::from(Color::rgba(
-                    1.74 * 2.0,
-                    1.15 * 2.0,
-                    0.74 * 2.0,
-                    1.0,
-                ))),
-                transform: Transform::from_translation(beam_location).with_rotation(-rotation),
-                ..Default::default()
-            });
+            spawn_laser_beam(parent, grid_pos, direction, meshes, materials, &map);
         })
         .id();
     map.place_tower(grid_pos, entity).unwrap();
     event_writer.send(TowerPlaced { grid_pos });
+}
+
+#[derive(Component)]
+pub struct LaserBeam;
+
+pub fn spawn_laser_beam(
+    parent: &mut ChildBuilder,
+    grid_pos: (i8, i8),
+    direction: Direction,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    map: &Map,
+) {
+    let rotation = match direction {
+        Direction::Up => Quat::from_rotation_z(std::f32::consts::PI),
+        Direction::Down => Quat::from_rotation_z(0.0),
+        Direction::Left => Quat::from_rotation_z(-std::f32::consts::FRAC_PI_2),
+        Direction::Right => Quat::from_rotation_z(std::f32::consts::FRAC_PI_2),
+    };
+    let (beam_dimensions, beam_location) = match direction {
+        Direction::Up => {
+            let height = (map.height as i8 - grid_pos.1) as f32 * 32.0 - 16.0;
+            let y = (map.height as i8 - grid_pos.1 - 1) as f32 * 32.0 - height / 2.0;
+            (Vec2::new(5.0, height), Vec3::new(0.0, -y - 16.0, 2.0))
+        }
+        Direction::Down => {
+            let height = (grid_pos.1 + 1) as f32 * 32.0 - 16.0;
+            let y = grid_pos.1 as f32 * 32.0 - height / 2.0;
+            (Vec2::new(5.0, height), Vec3::new(0.0, -y - 16.0, 2.0))
+        }
+        Direction::Left => {
+            let width = (grid_pos.0 + 1) as f32 * 32.0 - 16.0;
+            let y = grid_pos.0 as f32 * 32.0 - width / 2.0;
+            (Vec2::new(width, 5.0), Vec3::new(0.0, -y - 16.0, 2.0))
+        }
+        Direction::Right => {
+            let width = (map.width as i8 - grid_pos.0) as f32 * 32.0 - 16.0;
+            let y = (map.width as i8 - grid_pos.0 - 1) as f32 * 32.0 - width / 2.0;
+            (Vec2::new(width, 5.0), Vec3::new(0.0, -y - 16.0, 2.0))
+        }
+    };
+    parent
+        .spawn(MaterialMesh2dBundle {
+            mesh: meshes.add(shape::Quad::new(beam_dimensions).into()).into(),
+            material: materials.add(ColorMaterial::from(Color::rgba(
+                1.74 * 2.0,
+                1.15 * 2.0,
+                0.74 * 2.0,
+                1.0,
+            ))),
+            transform: Transform::from_translation(beam_location).with_rotation(-rotation),
+            ..Default::default()
+        })
+        .insert(LaserBeam);
 }

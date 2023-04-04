@@ -2,7 +2,7 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets};
 
-use super::{Debuff, Tower, TowerPlaced, TowerType};
+use super::{Tower, TowerPlaced};
 
 #[derive(Component, Debug)]
 pub struct ChargeShot {
@@ -110,6 +110,7 @@ pub fn handle_projectiles(
 }
 
 pub fn spawn_charge_shot(
+    tower: Tower,
     mut commands: Commands,
     grid_pos: (i8, i8),
     game_assets: Res<GameAssets>,
@@ -118,12 +119,6 @@ pub fn spawn_charge_shot(
     mut materials: ResMut<Assets<ColorMaterial>>,
     mut map: ResMut<Map>,
 ) {
-    let tower = Tower::new(
-        1.0,
-        1.0,
-        TowerType::ChargeShot,
-        Debuff::ReduceNeighbourDamage(20.0),
-    );
     let entity = commands
         .spawn(SpriteBundle {
             texture: game_assets.charge_shot.clone(),

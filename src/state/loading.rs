@@ -7,6 +7,8 @@ pub struct GameAssets {
     pub font: Handle<Font>,
     #[asset(path = "enemy.png")]
     pub enemy: Handle<Image>,
+    #[asset(path = "tiles/tile_select.png")]
+    pub tile_select: Handle<Image>,
     #[asset(path = "tiles/empty.png")]
     pub empty_tile: Handle<Image>,
     #[asset(path = "tiles/buildable.png")]

@@ -42,12 +42,21 @@ impl Map {
         Vec2::new(x * 32.0, y * 32.0)
     }
 
-    pub fn is_valid_placement(&self, pos: (i8, i8)) -> bool {
+    pub fn is_within_bounds(&self, pos: (i8, i8)) -> bool {
         let (x, y) = pos;
         if x >= self.width.try_into().unwrap()
             || y >= self.height.try_into().unwrap()
             || x < 0
             || y < 0
+        {
+            return false;
+        }
+        true
+    }
+
+    pub fn is_valid_placement(&self, pos: (i8, i8)) -> bool {
+        let (x, y) = pos;
+        if !self.is_within_bounds(pos)
             || self.grid[y as usize][x as usize] == 1
             || self.placements.contains_key(&(x, y))
         {

@@ -33,10 +33,6 @@ pub fn update_enemy_grid_pos(
         let grid_pos = Map::get_grid_pos(pos);
         let grid_pos = (grid_pos.0, grid_pos.1);
         if grid_pos != enemy.current_grid_pos {
-            // println!(
-            // "Enemy moved from {:?} to {:?}",
-            // enemy.current_grid_pos, grid_pos
-            // );
             if let Some(entities) = map.enemies.get_mut(&enemy.current_grid_pos) {
                 entities.retain(|e| *e != entity);
             }

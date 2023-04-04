@@ -35,10 +35,11 @@ pub fn grid_click_handler(
                 let world_position = world_position.origin.truncate();
                 let grid_pos = Map::get_grid_pos(world_position);
                 if map.is_valid_placement(grid_pos) {
-                    let tower = &inventory.towers[i];
+                    let tower = inventory.towers.remove(i);
                     match tower.variant {
                         TowerType::ChargeShot => {
                             spawn_charge_shot(
+                                tower,
                                 commands,
                                 grid_pos,
                                 game_assets,
@@ -50,6 +51,7 @@ pub fn grid_click_handler(
                         }
                         TowerType::Laser => {
                             spawn_laser(
+                                tower,
                                 commands,
                                 grid_pos,
                                 Direction::Down,
@@ -61,13 +63,32 @@ pub fn grid_click_handler(
                             );
                         }
                     }
-                    inventory.towers.remove(i);
                     ui_data.state = UiState::Normal;
+                }
+            }
+        }
+    } else if mouse_input.just_pressed(MouseButton::Left) {
+        let window = windows.get_single().unwrap();
+        let mouse_pos = window.cursor_position().unwrap();
+        let (camera, camera_transform) = camera.get_single().unwrap();
+
+        if let Some(world_position) = camera.viewport_to_world(camera_transform, mouse_pos) {
+            let world_position = world_position.origin.truncate();
+            let grid_pos = Map::get_grid_pos(world_position);
+            if map.is_within_bounds(grid_pos) {
+                if map.placements.contains_key(&grid_pos) {
+                    // Select the clicked tower
+                    ui_data.selected_pos = Some(grid_pos);
+                } else {
+                    ui_data.selected_pos = None;
                 }
             }
         }
     }
 }
+
+#[derive(Default, Resource)]
+pub struct HoverPosition(pub Option<(i8, i8)>);
 
 pub fn mouse_hover_handler(
     map: Res<Map>,
@@ -75,7 +96,7 @@ pub fn mouse_hover_handler(
     camera: Query<(&Camera, &GlobalTransform)>,
     tower_query: Query<&Children, With<Tower>>,
     mut children_query: Query<&mut Visibility, With<RangeIndicator>>,
-    mut ui_state: ResMut<UiData>,
+    mut hover_pos: ResMut<HoverPosition>,
 ) {
     for event in cursor_events.iter() {
         let mouse_pos = event.position;
@@ -84,7 +105,7 @@ pub fn mouse_hover_handler(
         if let Some(world_position) = camera.viewport_to_world(camera_transform, mouse_pos) {
             let world_position = world_position.origin.truncate();
             let grid_pos = Map::get_grid_pos(world_position);
-            if let Some(pos) = ui_state.hovered_pos {
+            if let Some(pos) = hover_pos.0 {
                 if pos != grid_pos {
                     // Hide the range of the previously hovered tower
                     if let Some(tower) = map.placements.get(&pos) {
@@ -107,9 +128,14 @@ pub fn mouse_hover_handler(
                         }
                     }
                 }
-                ui_state.hovered_pos = Some(grid_pos);
-            } else {
-                ui_state.hovered_pos = None;
+            }
+            // Update the hover position
+            if hover_pos.0 != Some(grid_pos) {
+                if map.is_within_bounds(grid_pos) {
+                    hover_pos.0 = Some(grid_pos);
+                } else {
+                    hover_pos.0 = None;
+                }
             }
         }
     }
