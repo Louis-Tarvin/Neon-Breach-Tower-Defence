@@ -138,13 +138,15 @@ pub fn spawn_charge_shot(
         .insert(ChargeShot::new(1.0, 0.5))
         .with_children(|parent| {
             // Circle used to show the range of the tower
-            parent.spawn(MaterialMesh2dBundle {
-                mesh: meshes.add(shape::Circle::new(1.5 * 32.0).into()).into(),
-                material: materials.add(ColorMaterial::from(Color::rgba(1.0, 0.0, 0.0, 0.2))),
-                transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
-                visibility: Visibility::Hidden,
-                ..Default::default()
-            });
+            parent
+                .spawn(MaterialMesh2dBundle {
+                    mesh: meshes.add(shape::Circle::new(1.5 * 32.0).into()).into(),
+                    material: materials.add(ColorMaterial::from(Color::rgba(1.0, 0.0, 0.0, 0.2))),
+                    transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
+                    visibility: Visibility::Hidden,
+                    ..Default::default()
+                })
+                .insert(RangeIndicator {});
         })
         .id();
     map.place_tower(grid_pos, entity).unwrap();

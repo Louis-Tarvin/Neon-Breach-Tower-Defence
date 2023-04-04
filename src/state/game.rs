@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{enemies, grid, input, tower, ui};
+use crate::{enemies, grid, input, inventory, tower, ui};
 
 pub struct GamePlugin;
 
@@ -8,7 +8,8 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<tower::TowerPlaced>()
             .add_event::<tower::AddDebuff>()
-            .insert_resource(ui::UIState::default())
+            .insert_resource(ui::UiData::default())
+            .insert_resource(inventory::Inventory::default())
             .add_system(setup.in_schedule(OnEnter(super::State::Game)))
             .add_system(grid::load_map.in_schedule(OnEnter(super::State::Game)))
             .add_system(enemies::spawn_enemies.in_set(OnUpdate(super::State::Game)))
@@ -20,6 +21,9 @@ impl Plugin for GamePlugin {
             .add_system(tower::charge_shot::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::handle_projectiles.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::laser::shoot.in_set(OnUpdate(super::State::Game)))
+            .add_system(inventory::give_random_tower.in_set(OnUpdate(super::State::Game)))
+            .add_system(ui::draw_inventory.in_set(OnUpdate(super::State::Game)))
+            .add_system(ui::handle_inventory_buttons.in_set(OnUpdate(super::State::Game)))
             .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(input::mouse_hover_handler.in_set(OnUpdate(super::State::Game)));
     }

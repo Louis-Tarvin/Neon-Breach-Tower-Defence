@@ -24,3 +24,4 @@ bevy = { version = "0.10", default-features = false }
 bevy_asset_loader = "0.15.0"
 bevy_kira_audio = { version = "0.15", default-features = false, features = ["wav", "ogg"] }
 bevy-inspector-egui = "0.18.1"
+rand = "0.8.5"

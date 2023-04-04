@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use rand::{distributions::Standard, prelude::Distribution, Rng};
 
 use crate::grid::Map;
 
@@ -12,11 +13,63 @@ pub enum TowerType {
     // Sniper,
     // Rocket,
 }
+impl TowerType {
+    pub fn name(&self) -> &'static str {
+        match self {
+            TowerType::ChargeShot => "Charge Shot",
+            TowerType::Laser => "Laser",
+        }
+    }
+
+    pub fn description(&self) -> &'static str {
+        match self {
+            TowerType::ChargeShot => {
+                "A tower that regularly shoots a projectile at the furthest enemy in range"
+            }
+            TowerType::Laser => "A tower that shoots a continuous beam. Pierces enemies",
+        }
+    }
+}
+impl Distribution<TowerType> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TowerType {
+        match rng.gen_range(0..=1) {
+            0 => TowerType::ChargeShot,
+            1 => TowerType::Laser,
+            // 2 => TowerType::Sniper,
+            // 3 => TowerType::Rocket,
+            _ => unreachable!(),
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum Debuff {
-    // MoveSpeedUp(f32),
+    MoveSpeedUp(f32),
     ReduceNeighbourDamage(f32),
+}
+impl Debuff {
+    pub fn description(&self) -> String {
+        match self {
+            Debuff::MoveSpeedUp(percent) => {
+                format!("Enemies within 1 tile move {}% faster", percent)
+            }
+            Debuff::ReduceNeighbourDamage(percent) => {
+                format!(
+                    "Towers directly next to this one do {}% less damage",
+                    percent
+                )
+            }
+        }
+    }
+}
+impl Distribution<Debuff> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Debuff {
+        match rng.gen_range(0..=1) {
+            0 => Debuff::MoveSpeedUp((rng.gen_range(5.0..=25.0) as f32).round()),
+            1 => Debuff::ReduceNeighbourDamage((rng.gen_range(5.0..=25.0) as f32).round()),
+            _ => unreachable!(),
+        }
+    }
 }
 
 #[derive(Component, Debug)]
@@ -35,6 +88,14 @@ impl Tower {
             variant,
             debuff,
             timer: Timer::from_seconds(1.0 / rate, TimerMode::Repeating),
+        }
+    }
+
+    pub fn new_random() -> Self {
+        let variant: TowerType = rand::random();
+        match variant {
+            TowerType::ChargeShot => Self::new(1.0, 1.0, variant, rand::random()),
+            TowerType::Laser => Self::new(0.2, 4.0, variant, rand::random()),
         }
     }
 
@@ -81,6 +142,7 @@ pub fn handle_tower_placement(
                     });
                 }
             }
+            _ => {}
         }
         // Apply neighbour debuff to self
         for &(dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
@@ -93,6 +155,7 @@ pub fn handle_tower_placement(
                             debuff: Debuff::ReduceNeighbourDamage(*percent),
                         });
                     }
+                    _ => {}
                 }
             }
         }
@@ -109,6 +172,7 @@ pub fn debuff_event_handler(
             let mut tower = query.get_mut(*entity).expect("Tower entity not found");
             match &event.debuff {
                 Debuff::ReduceNeighbourDamage(percent) => tower.reduce_damage_by(*percent),
+                _ => {}
             }
         }
     }

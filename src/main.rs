@@ -12,6 +12,7 @@ mod debug;
 mod enemies;
 mod grid;
 mod input;
+mod inventory;
 mod state;
 mod tower;
 mod ui;

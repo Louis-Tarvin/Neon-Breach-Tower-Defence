@@ -32,7 +32,9 @@ impl Map {
     pub fn get_grid_pos(pos: Vec2) -> (i8, i8) {
         let x = pos.x + 16.0;
         let y = pos.y + 16.0;
-        ((x / 32.0) as i8, (y / 32.0) as i8)
+        let x = if x < 0.0 { -1 } else { (x / 32.0) as i8 };
+        let y = if y < 0.0 { -1 } else { (y / 32.0) as i8 };
+        (x, y)
     }
 
     pub fn grid_to_world_pos(pos: (f32, f32)) -> Vec2 {
