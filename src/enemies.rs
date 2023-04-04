@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{grid::Map, state::loading::GameAssets};
+use crate::{grid::Map, state::loading::GameAssets, tower::debuffs::SpeedUpPoint};
 
 #[derive(Debug, Component)]
 pub struct Enemy {
@@ -66,11 +66,18 @@ pub fn spawn_enemies(
 pub fn enemy_movement(
     mut commands: Commands,
     mut map: ResMut<Map>,
-    mut enemies: Query<(&mut Enemy, &mut Transform, Entity)>,
+    mut enemies: Query<(&mut Enemy, &mut Transform, Entity), Without<SpeedUpPoint>>,
+    speed_up_points: Query<(&SpeedUpPoint, &Transform), Without<Enemy>>,
     time: Res<Time>,
 ) {
     for (mut enemy, mut transform, entity) in enemies.iter_mut() {
-        let distance_to_travel = enemy.move_speed * time.delta_seconds();
+        let mut distance_to_travel = enemy.move_speed * time.delta_seconds();
+        for (speed_up_point, transform2) in speed_up_points.iter() {
+            let distance = (transform2.translation - transform.translation).length();
+            if distance <= 48.0 {
+                distance_to_travel += (speed_up_point.0 / 100.0) * distance_to_travel;
+            }
+        }
         let mut current_pos = transform.translation.truncate();
         let next_pos = map.path[enemy.path_target];
         let next_pos = Map::grid_to_world_pos((next_pos.0 as f32, next_pos.1 as f32));

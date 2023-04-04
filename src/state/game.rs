@@ -7,7 +7,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<tower::TowerPlaced>()
-            .add_event::<tower::AddDebuff>()
+            .add_event::<tower::debuffs::AddDebuff>()
             .insert_resource(ui::UiData::default())
             .insert_resource(input::HoverPosition::default())
             .insert_resource(inventory::Inventory::default())
@@ -18,7 +18,7 @@ impl Plugin for GamePlugin {
             .add_system(enemies::enemy_movement.in_set(OnUpdate(super::State::Game)))
             .add_system(enemies::check_killed.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::handle_tower_placement.in_set(OnUpdate(super::State::Game)))
-            .add_system(tower::debuff_event_handler.in_set(OnUpdate(super::State::Game)))
+            .add_system(tower::debuffs::debuff_event_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::handle_projectiles.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::laser::shoot.in_set(OnUpdate(super::State::Game)))

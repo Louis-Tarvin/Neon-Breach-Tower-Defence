@@ -3,7 +3,10 @@ use rand::{distributions::Standard, prelude::Distribution, Rng};
 
 use crate::grid::Map;
 
+use self::debuffs::{AddDebuff, Debuff};
+
 pub mod charge_shot;
+pub mod debuffs;
 pub mod laser;
 
 #[derive(Debug)]
@@ -42,36 +45,6 @@ impl Distribution<TowerType> for Standard {
     }
 }
 
-#[derive(Debug)]
-pub enum Debuff {
-    MoveSpeedUp(f32),
-    ReduceNeighbourDamage(f32),
-}
-impl Debuff {
-    pub fn description(&self) -> String {
-        match self {
-            Debuff::MoveSpeedUp(percent) => {
-                format!("Enemies within 1 tile move {}% faster", percent)
-            }
-            Debuff::ReduceNeighbourDamage(percent) => {
-                format!(
-                    "Towers directly next to this one do {}% less damage",
-                    percent
-                )
-            }
-        }
-    }
-}
-impl Distribution<Debuff> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Debuff {
-        match rng.gen_range(0..=1) {
-            0 => Debuff::MoveSpeedUp((rng.gen_range(5.0..=25.0) as f32).round()),
-            1 => Debuff::ReduceNeighbourDamage((rng.gen_range(5.0..=25.0) as f32).round()),
-            _ => unreachable!(),
-        }
-    }
-}
-
 #[derive(Component, Debug)]
 pub struct Tower {
     pub damage: f32,
@@ -103,17 +76,16 @@ impl Tower {
         let reduction = self.damage * (percent / 100.0);
         self.damage -= reduction;
     }
+
+    pub fn reduce_rate_by(&mut self, percent: f32) {
+        let reduction = self.rate * (percent / 100.0);
+        self.rate -= reduction;
+    }
 }
 
 #[derive(Debug)]
 pub struct TowerPlaced {
     pub grid_pos: (i8, i8),
-}
-
-#[derive(Debug)]
-pub struct AddDebuff {
-    pub grid_pos: (i8, i8),
-    pub debuff: Debuff,
 }
 
 pub fn handle_tower_placement(
@@ -132,6 +104,13 @@ pub fn handle_tower_placement(
             .expect("Tower entity not found");
 
         let (x, y) = event.grid_pos;
+        // Apply debuff to self
+        if let Debuff::MoveSpeedUp(percent) = &tower.debuff {
+            debuff_events.send(AddDebuff {
+                grid_pos: (x, y),
+                debuff: Debuff::MoveSpeedUp(*percent),
+            });
+        }
         // Apply debuff to neighbours
         match &tower.debuff {
             Debuff::ReduceNeighbourDamage(percent) => {
@@ -139,6 +118,14 @@ pub fn handle_tower_placement(
                     debuff_events.send(AddDebuff {
                         grid_pos: (x + dx, y + dy),
                         debuff: Debuff::ReduceNeighbourDamage(*percent),
+                    });
+                }
+            }
+            Debuff::ReduceNeighbourRate(percent) => {
+                for &(dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x + dx, y + dy),
+                        debuff: Debuff::ReduceNeighbourRate(*percent),
                     });
                 }
             }
@@ -155,24 +142,14 @@ pub fn handle_tower_placement(
                             debuff: Debuff::ReduceNeighbourDamage(*percent),
                         });
                     }
+                    Debuff::ReduceNeighbourRate(percent) => {
+                        debuff_events.send(AddDebuff {
+                            grid_pos: (x, y),
+                            debuff: Debuff::ReduceNeighbourRate(*percent),
+                        });
+                    }
                     _ => {}
                 }
-            }
-        }
-    }
-}
-
-pub fn debuff_event_handler(
-    mut events: EventReader<AddDebuff>,
-    mut query: Query<&mut Tower>,
-    map: Res<Map>,
-) {
-    for event in events.iter() {
-        if let Some(entity) = map.placements.get(&event.grid_pos) {
-            let mut tower = query.get_mut(*entity).expect("Tower entity not found");
-            match &event.debuff {
-                Debuff::ReduceNeighbourDamage(percent) => tower.reduce_damage_by(*percent),
-                _ => {}
             }
         }
     }
