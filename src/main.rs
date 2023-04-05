@@ -10,6 +10,7 @@ use state::{game::GamePlugin, loading::GameAssets, main_menu::MainMenuPlugin};
 mod audio;
 mod debug;
 mod enemies;
+mod gameplay;
 mod grid;
 mod input;
 mod inventory;

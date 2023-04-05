@@ -19,7 +19,7 @@ pub enum TowerType {
 impl TowerType {
     pub fn name(&self) -> &'static str {
         match self {
-            TowerType::ChargeShot => "Charge Shot",
+            TowerType::ChargeShot => "Turret",
             TowerType::Laser => "Laser",
         }
     }
@@ -27,7 +27,7 @@ impl TowerType {
     pub fn description(&self) -> &'static str {
         match self {
             TowerType::ChargeShot => {
-                "A tower that regularly shoots a projectile at the furthest enemy in range"
+                "A tower that regularly shoots a projectile at the first enemy in range"
             }
             TowerType::Laser => "A tower that shoots a continuous beam. Pierces enemies",
         }

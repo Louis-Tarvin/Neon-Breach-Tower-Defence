@@ -2,6 +2,14 @@ use bevy::prelude::*;
 
 use crate::{grid::Map, state::loading::GameAssets, tower::debuffs::SpeedUpPoint};
 
+#[derive(Debug, Clone, Copy)]
+pub enum EnemyVariant {
+    Normal,
+    Fast,
+    Strong,
+    Boss,
+}
+
 #[derive(Debug, Component)]
 pub struct Enemy {
     pub max_health: f32,
@@ -22,6 +30,15 @@ impl Enemy {
             path_target: 0,
             current_grid_pos: grid_pos,
             distance_travelled: 0.0,
+        }
+    }
+
+    pub fn new_variant(variant: EnemyVariant, grid_pos: (i8, i8)) -> Self {
+        match variant {
+            EnemyVariant::Normal => Self::new(5.0, 20.0, grid_pos),
+            EnemyVariant::Fast => Self::new(5.0, 40.0, grid_pos),
+            EnemyVariant::Strong => Self::new(20.0, 15.0, grid_pos),
+            EnemyVariant::Boss => Self::new(60.0, 10.0, grid_pos),
         }
     }
 }

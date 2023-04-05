@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{enemies, grid, input, inventory, tower, ui};
+use crate::{enemies, gameplay, grid, input, inventory, tower, ui};
 
 pub struct GamePlugin;
 
@@ -8,14 +8,21 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<tower::TowerPlaced>()
             .add_event::<tower::debuffs::AddDebuff>()
+            .insert_resource(gameplay::GameManager::new())
             .insert_resource(ui::UiData::default())
             .insert_resource(input::HoverPosition::default())
             .insert_resource(inventory::Inventory::default())
             .add_system(setup.in_schedule(OnEnter(super::State::Game)))
             .add_system(grid::load_map.in_schedule(OnEnter(super::State::Game)))
+            .add_system(gameplay::gameloop.in_set(OnUpdate(super::State::Game)))
             .add_system(enemies::spawn_enemies.in_set(OnUpdate(super::State::Game)))
-            .add_system(enemies::update_enemy_grid_pos.in_set(OnUpdate(super::State::Game)))
-            .add_system(enemies::enemy_movement.in_set(OnUpdate(super::State::Game)))
+            .add_systems(
+                (
+                    enemies::enemy_movement.in_set(OnUpdate(super::State::Game)),
+                    enemies::update_enemy_grid_pos.in_set(OnUpdate(super::State::Game)),
+                )
+                    .chain(),
+            )
             .add_systems(
                 (
                     enemies::check_killed.in_set(OnUpdate(super::State::Game)),
