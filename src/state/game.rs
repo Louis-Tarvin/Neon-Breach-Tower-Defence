@@ -16,7 +16,14 @@ impl Plugin for GamePlugin {
             .add_system(enemies::spawn_enemies.in_set(OnUpdate(super::State::Game)))
             .add_system(enemies::update_enemy_grid_pos.in_set(OnUpdate(super::State::Game)))
             .add_system(enemies::enemy_movement.in_set(OnUpdate(super::State::Game)))
-            .add_system(enemies::check_killed.in_set(OnUpdate(super::State::Game)))
+            .add_systems(
+                (
+                    enemies::check_killed.in_set(OnUpdate(super::State::Game)),
+                    enemies::update_healthbar.in_set(OnUpdate(super::State::Game)),
+                    enemies::scale_healthbar.in_set(OnUpdate(super::State::Game)),
+                )
+                    .chain(),
+            )
             .add_system(tower::handle_tower_placement.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::debuffs::debuff_event_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::shoot.in_set(OnUpdate(super::State::Game)))
