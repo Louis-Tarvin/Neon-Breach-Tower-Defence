@@ -40,6 +40,7 @@ impl Plugin for GamePlugin {
             .add_system(ui::update_selection_indicator.in_set(OnUpdate(super::State::Game)))
             .add_system(ui::draw_inventory.in_set(OnUpdate(super::State::Game)))
             .add_system(ui::handle_inventory_buttons.in_set(OnUpdate(super::State::Game)))
+            .add_system(ui::handle_tower_options.in_set(OnUpdate(super::State::Game)))
             .add_system(ui::draw_sidebar.in_set(OnUpdate(super::State::Game)))
             .add_system(ui::handle_toggle_rotation_button.in_set(OnUpdate(super::State::Game)))
             .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)))

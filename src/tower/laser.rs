@@ -36,7 +36,6 @@ impl Laser {
 }
 
 pub fn shoot(
-    mut commands: Commands,
     mut query: Query<(&Tower, &mut Laser, &Transform), Without<Enemy>>,
     mut enemies: Query<&mut Enemy, Without<Tower>>,
     map: Res<Map>,
@@ -54,9 +53,6 @@ pub fn shoot(
                             for entity in grid_enemies {
                                 if let Ok(mut enemy) = enemies.get_mut(*entity) {
                                     enemy.current_health -= tower.damage;
-                                    if enemy.current_health <= 0.0 {
-                                        commands.entity(*entity).despawn();
-                                    }
                                 }
                             }
                         }
@@ -70,9 +66,6 @@ pub fn shoot(
                             for entity in grid_enemies {
                                 if let Ok(mut enemy) = enemies.get_mut(*entity) {
                                     enemy.current_health -= tower.damage;
-                                    if enemy.current_health <= 0.0 {
-                                        commands.entity(*entity).despawn();
-                                    }
                                 }
                             }
                         }
@@ -86,9 +79,6 @@ pub fn shoot(
                             for entity in grid_enemies {
                                 if let Ok(mut enemy) = enemies.get_mut(*entity) {
                                     enemy.current_health -= tower.damage;
-                                    if enemy.current_health <= 0.0 {
-                                        commands.entity(*entity).despawn();
-                                    }
                                 }
                             }
                         }
@@ -102,9 +92,6 @@ pub fn shoot(
                             for entity in grid_enemies {
                                 if let Ok(mut enemy) = enemies.get_mut(*entity) {
                                     enemy.current_health -= tower.damage;
-                                    if enemy.current_health <= 0.0 {
-                                        commands.entity(*entity).despawn();
-                                    }
                                 }
                             }
                         }

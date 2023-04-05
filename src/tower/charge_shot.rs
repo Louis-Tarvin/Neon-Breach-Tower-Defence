@@ -97,7 +97,7 @@ pub fn handle_projectiles(
         if let Ok((mut enemy, enemy_transform)) = enemies.get_mut(projectile.target) {
             let direction = (enemy_transform.translation - transform.translation).normalize();
             transform.translation += direction * projectile.speed * time.delta_seconds();
-            if transform.translation.distance(enemy_transform.translation) < 0.5 {
+            if transform.translation.distance(enemy_transform.translation) < 15.0 {
                 // Hit enemy
                 enemy.current_health -= projectile.damage;
                 commands.entity(entity).despawn();

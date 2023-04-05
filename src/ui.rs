@@ -14,11 +14,22 @@ use crate::{
 const CARD_BACKGROUND_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
 const CARD_BACKGROUND_COLOR_HOVER: Color = Color::rgb(0.9, 0.9, 0.9);
 
-#[derive(Default, Debug, PartialEq, Eq)]
+#[derive(Default, Debug)]
 pub enum UiState {
     #[default]
     Normal,
     PlacingTower(usize),
+    PickingTower(Vec<Tower>),
+}
+impl PartialEq for UiState {
+    fn eq(&self, other: &Self) -> bool {
+        matches!(
+            (self, other),
+            (UiState::Normal, UiState::Normal)
+                | (UiState::PlacingTower(_), UiState::PlacingTower(_))
+                | (UiState::PickingTower(_), UiState::PickingTower(_))
+        )
+    }
 }
 
 #[derive(Resource, Debug, Default)]
@@ -30,6 +41,11 @@ pub struct UiData {
 
 #[derive(Component)]
 pub struct InventoryTower {
+    pub index: usize,
+}
+
+#[derive(Component)]
+pub struct TowerOption {
     pub index: usize,
 }
 
@@ -91,134 +107,147 @@ pub fn draw_inventory(
             .insert(InventoryRoot)
             .with_children(|parent| {
                 for (i, tower) in inventory.towers.iter().enumerate() {
-                    draw_tower_card(parent, tower, game_assets.font.clone(), i);
+                    draw_tower_card(parent, tower, game_assets.font.clone(), i, true);
                 }
             });
     }
 }
 
-fn draw_tower_card(parent: &mut ChildBuilder, tower: &Tower, font: Handle<Font>, index: usize) {
-    parent
-        .spawn(ButtonBundle {
-            style: Style {
-                size: Size::new(Val::Px(200.0), Val::Px(300.0)),
-                margin: UiRect::all(Val::Px(10.0)),
-                flex_direction: FlexDirection::Column,
-                ..Default::default()
-            },
-            background_color: CARD_BACKGROUND_COLOR.into(),
+fn draw_tower_card(
+    parent: &mut ChildBuilder,
+    tower: &Tower,
+    font: Handle<Font>,
+    index: usize,
+    is_inventory: bool,
+) {
+    let mut card = parent.spawn(ButtonBundle {
+        style: Style {
+            size: Size::new(Val::Px(200.0), Val::Px(300.0)),
+            margin: UiRect::all(Val::Px(10.0)),
+            flex_direction: FlexDirection::Column,
             ..Default::default()
-        })
-        .insert(InventoryTower { index })
-        .with_children(|parent| {
-            // Tower name
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
-                        ..Default::default()
-                    },
+        },
+        background_color: CARD_BACKGROUND_COLOR.into(),
+        ..Default::default()
+    });
+    if is_inventory {
+        card.insert(InventoryTower { index });
+    } else {
+        card.insert(TowerOption { index });
+    }
+    card.with_children(|parent| {
+        // Tower name
+        parent
+            .spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
                     ..Default::default()
-                })
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            tower.variant.name(),
-                            TextStyle {
-                                font: font.clone(),
-                                font_size: 20.0,
-                                color: Color::BLACK,
-                            },
-                        ),
-                        ..Default::default()
-                    });
-                });
-            // Tower description
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(60.0)),
-                        ..Default::default()
-                    },
-                    background_color: Color::rgb(0.6, 0.6, 0.6).into(),
-                    ..Default::default()
-                })
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            tower.variant.description(),
-                            TextStyle {
-                                font: font.clone(),
-                                font_size: 19.0,
-                                color: Color::BLACK,
-                            },
-                        ),
-                        style: Style {
-                            max_size: Size::new(Val::Px(200.0), Val::Px(60.0)),
-                            ..Default::default()
+                },
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        tower.variant.name(),
+                        TextStyle {
+                            font: font.clone(),
+                            font_size: 20.0,
+                            color: Color::BLACK,
                         },
-                        ..Default::default()
-                    });
-                });
-            // Tower stats
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(30.0)),
-                        ..Default::default()
-                    },
+                    ),
                     ..Default::default()
-                })
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            format!("DPS: {}", tower.damage * tower.rate),
-                            TextStyle {
-                                font: font.clone(),
-                                font_size: 17.0,
-                                color: Color::BLACK,
-                            },
-                        ),
-                        ..Default::default()
-                    });
                 });
-            // Debuff description
-            parent
-                .spawn(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
-                        align_items: AlignItems::Center,
-                        justify_content: JustifyContent::Center,
-                        ..Default::default()
-                    },
+            });
+        // Tower description
+        parent
+            .spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Px(60.0)),
                     ..Default::default()
-                })
-                .with_children(|parent| {
-                    parent.spawn(TextBundle {
-                        text: Text::from_section(
-                            format!("Side effect: {}", tower.debuff.description()),
-                            TextStyle {
-                                font,
-                                font_size: 20.0,
-                                color: Color::RED,
-                            },
-                        ),
-                        style: Style {
-                            max_size: Size::new(Val::Px(200.0), Val::Px(50.0)),
-                            ..Default::default()
+                },
+                background_color: Color::rgb(0.6, 0.6, 0.6).into(),
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        tower.variant.description(),
+                        TextStyle {
+                            font: font.clone(),
+                            font_size: 19.0,
+                            color: Color::BLACK,
                         },
+                    ),
+                    style: Style {
+                        max_size: Size::new(Val::Px(200.0), Val::Px(60.0)),
                         ..Default::default()
-                    });
+                    },
+                    ..Default::default()
                 });
-        });
+            });
+        // Tower stats
+        parent
+            .spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Px(30.0)),
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        format!("DPS: {}", tower.damage * tower.rate),
+                        TextStyle {
+                            font: font.clone(),
+                            font_size: 17.0,
+                            color: Color::BLACK,
+                        },
+                    ),
+                    ..Default::default()
+                });
+            });
+        // Debuff description
+        parent
+            .spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                    align_items: AlignItems::Center,
+                    justify_content: JustifyContent::Center,
+                    ..Default::default()
+                },
+                ..Default::default()
+            })
+            .with_children(|parent| {
+                parent.spawn(TextBundle {
+                    text: Text::from_section(
+                        format!("Side effect: {}", tower.debuff.description()),
+                        TextStyle {
+                            font,
+                            font_size: 20.0,
+                            color: Color::RED,
+                        },
+                    ),
+                    style: Style {
+                        max_size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                });
+            });
+    });
 }
 
 pub fn handle_inventory_buttons(
     mut ui_data: ResMut<UiData>,
     mut query: Query<(&InventoryTower, &Interaction, &mut BackgroundColor), Changed<Interaction>>,
 ) {
+    match ui_data.state {
+        UiState::PlacingTower(_) | UiState::PickingTower(_) => return,
+        _ => (),
+    }
     for (inventory_tower, interaction, mut background_color) in query.iter_mut() {
         match interaction {
             Interaction::Clicked => match ui_data.state {
@@ -239,6 +268,43 @@ pub fn handle_inventory_buttons(
             Interaction::None => {
                 if let UiState::PlacingTower(i) = ui_data.state {
                     if i == inventory_tower.index {
+                        background_color.0 = CARD_BACKGROUND_COLOR_HOVER;
+                    } else {
+                        background_color.0 = CARD_BACKGROUND_COLOR;
+                    }
+                } else {
+                    background_color.0 = CARD_BACKGROUND_COLOR;
+                }
+            }
+        }
+    }
+}
+
+pub fn handle_tower_options(
+    mut commands: Commands,
+    mut ui_data: ResMut<UiData>,
+    mut query: Query<(&TowerOption, &Interaction, &mut BackgroundColor), Changed<Interaction>>,
+    root: Query<Entity, With<TowerOptionsRoot>>,
+    mut inventory: ResMut<Inventory>,
+) {
+    for (tower_option, interaction, mut background_color) in query.iter_mut() {
+        match interaction {
+            Interaction::Clicked => {
+                if let UiState::PickingTower(ref mut options) = ui_data.state {
+                    let tower = options.remove(tower_option.index);
+                    inventory.towers.push(tower);
+                }
+                ui_data.state = UiState::Normal;
+                for entity in root.iter() {
+                    commands.entity(entity).despawn_recursive();
+                }
+            }
+            Interaction::Hovered => {
+                background_color.0 = CARD_BACKGROUND_COLOR_HOVER;
+            }
+            Interaction::None => {
+                if let UiState::PlacingTower(i) = ui_data.state {
+                    if i == tower_option.index {
                         background_color.0 = CARD_BACKGROUND_COLOR_HOVER;
                     } else {
                         background_color.0 = CARD_BACKGROUND_COLOR;
@@ -469,4 +535,49 @@ pub fn handle_toggle_rotation_button(
             }
         }
     }
+}
+
+#[derive(Component)]
+pub struct TowerOptionsRoot;
+
+pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers: &[Tower]) {
+    commands
+        .spawn(NodeBundle {
+            style: Style {
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                align_items: AlignItems::Center,
+                justify_content: JustifyContent::Center,
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .insert(TowerOptionsRoot)
+        .with_children(|parent| {
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Percent(100.0), Val::Px(400.0)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(TextBundle {
+                        text: Text::from_section(
+                            "Select a tower",
+                            TextStyle {
+                                font: font.clone(),
+                                font_size: 30.0,
+                                color: Color::BLACK,
+                            },
+                        ),
+                        ..Default::default()
+                    });
+                });
+            (0..3).for_each(|i| {
+                draw_tower_card(parent, &towers[i], font.clone(), i, false);
+            });
+        });
 }

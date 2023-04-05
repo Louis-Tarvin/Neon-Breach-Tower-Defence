@@ -6,6 +6,8 @@ use crate::{
     enemies::{Enemy, EnemyVariant},
     grid::Map,
     state::loading::GameAssets,
+    tower::Tower,
+    ui::{present_tower_options, UiData, UiState},
 };
 
 pub struct WaveSegment {
@@ -19,9 +21,11 @@ pub struct Wave {
 }
 
 pub enum WaveState {
+    /// Waiting for the next wave to start.
     Waiting,
     /// The wave is currently spawning enemies. Contains the number of enemies spawned so far.
     Spawning(u16),
+    /// The wave is finished, but there are still enemies alive.
     Finished,
 }
 
@@ -37,6 +41,7 @@ impl GameManager {
         Self {
             current_wave: 0,
             waves: vec![
+                Wave { segments: vec![] },
                 Wave {
                     segments: vec![WaveSegment {
                         enemy_type: EnemyVariant::Normal,
@@ -97,6 +102,7 @@ pub fn gameloop(
     enemies: Query<&Enemy>,
     map: Res<Map>,
     time: Res<Time>,
+    mut ui_data: ResMut<UiData>,
     game_assets: Res<GameAssets>,
 ) {
     match game_manager.wave_state {
@@ -151,6 +157,12 @@ pub fn gameloop(
                 println!("Wave {} finished", game_manager.current_wave);
                 game_manager.current_wave += 1;
                 game_manager.wave_state = WaveState::Waiting;
+                let mut options = Vec::new();
+                for _ in 0..3 {
+                    options.push(Tower::new_random());
+                }
+                present_tower_options(commands, game_assets.font.clone(), &options);
+                ui_data.state = UiState::PickingTower(options);
             }
         }
     }
