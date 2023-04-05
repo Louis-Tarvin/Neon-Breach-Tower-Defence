@@ -2,20 +2,20 @@ use bevy::prelude::*;
 
 use crate::{
     grid::Map,
-    inventory::Inventory,
     state::loading::GameAssets,
     tower::{
         charge_shot::{spawn_charge_shot, RangeIndicator},
         laser::{spawn_laser, Direction},
         Tower, TowerPlaced, TowerType,
     },
-    ui::{UiData, UiState},
+    ui::{inventory::Inventory, UiData, UiState, UiStateResource},
 };
 
 pub fn grid_click_handler(
     commands: Commands,
     map: ResMut<Map>,
     mut ui_data: ResMut<UiData>,
+    mut ui_state: ResMut<UiStateResource>,
     mut inventory: ResMut<Inventory>,
     mouse_input: Res<Input<MouseButton>>,
     windows: Query<&Window>,
@@ -25,65 +25,73 @@ pub fn grid_click_handler(
     meshes: ResMut<Assets<Mesh>>,
     materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    if let UiState::PlacingTower(i) = ui_data.state {
-        if mouse_input.just_pressed(MouseButton::Left) {
-            let window = windows.get_single().unwrap();
-            let mouse_pos = window.cursor_position().unwrap();
-            let (camera, camera_transform) = camera.get_single().unwrap();
+    match ui_state.state {
+        UiState::PlacingTower(i) => {
+            if mouse_input.just_pressed(MouseButton::Left) {
+                let window = windows.get_single().unwrap();
+                let mouse_pos = window.cursor_position().unwrap();
+                let (camera, camera_transform) = camera.get_single().unwrap();
 
-            if let Some(world_position) = camera.viewport_to_world(camera_transform, mouse_pos) {
-                let world_position = world_position.origin.truncate();
-                let grid_pos = Map::get_grid_pos(world_position);
-                if map.is_valid_placement(grid_pos) {
-                    let tower = inventory.towers.remove(i);
-                    match tower.variant {
-                        TowerType::ChargeShot => {
-                            spawn_charge_shot(
-                                tower,
-                                commands,
-                                grid_pos,
-                                game_assets,
-                                event_writer,
-                                meshes,
-                                materials,
-                                map,
-                            );
+                if let Some(world_position) = camera.viewport_to_world(camera_transform, mouse_pos)
+                {
+                    let world_position = world_position.origin.truncate();
+                    let grid_pos = Map::get_grid_pos(world_position);
+                    if map.is_valid_placement(grid_pos) {
+                        let tower = inventory.towers.remove(i);
+                        match tower.variant {
+                            TowerType::ChargeShot => {
+                                spawn_charge_shot(
+                                    tower,
+                                    commands,
+                                    grid_pos,
+                                    game_assets,
+                                    event_writer,
+                                    meshes,
+                                    materials,
+                                    map,
+                                );
+                            }
+                            TowerType::Laser => {
+                                spawn_laser(
+                                    tower,
+                                    commands,
+                                    grid_pos,
+                                    Direction::Down,
+                                    game_assets,
+                                    event_writer,
+                                    meshes,
+                                    materials,
+                                    map,
+                                );
+                            }
                         }
-                        TowerType::Laser => {
-                            spawn_laser(
-                                tower,
-                                commands,
-                                grid_pos,
-                                Direction::Down,
-                                game_assets,
-                                event_writer,
-                                meshes,
-                                materials,
-                                map,
-                            );
+                        ui_state.state = UiState::Normal;
+                    }
+                }
+            }
+        }
+        UiState::Normal => {
+            if mouse_input.just_pressed(MouseButton::Left) {
+                let window = windows.get_single().unwrap();
+                let mouse_pos = window.cursor_position().unwrap();
+                let (camera, camera_transform) = camera.get_single().unwrap();
+
+                if let Some(world_position) = camera.viewport_to_world(camera_transform, mouse_pos)
+                {
+                    let world_position = world_position.origin.truncate();
+                    let grid_pos = Map::get_grid_pos(world_position);
+                    if map.is_within_bounds(grid_pos) {
+                        if map.placements.contains_key(&grid_pos) {
+                            // Select the clicked tower
+                            ui_data.selected_pos = Some(grid_pos);
+                        } else {
+                            ui_data.selected_pos = None;
                         }
                     }
-                    ui_data.state = UiState::Normal;
                 }
             }
         }
-    } else if mouse_input.just_pressed(MouseButton::Left) {
-        let window = windows.get_single().unwrap();
-        let mouse_pos = window.cursor_position().unwrap();
-        let (camera, camera_transform) = camera.get_single().unwrap();
-
-        if let Some(world_position) = camera.viewport_to_world(camera_transform, mouse_pos) {
-            let world_position = world_position.origin.truncate();
-            let grid_pos = Map::get_grid_pos(world_position);
-            if map.is_within_bounds(grid_pos) {
-                if map.placements.contains_key(&grid_pos) {
-                    // Select the clicked tower
-                    ui_data.selected_pos = Some(grid_pos);
-                } else {
-                    ui_data.selected_pos = None;
-                }
-            }
-        }
+        _ => (),
     }
 }
 

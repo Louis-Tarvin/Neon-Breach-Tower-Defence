@@ -1,13 +1,12 @@
 use bevy::prelude::*;
 use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use crate::audio::{AudioAssets, MusicChannel, SoundChannel, VolumeSettings};
+use crate::{
+    audio::{AudioAssets, MusicChannel, SoundChannel, VolumeSettings},
+    ui::constants::*,
+};
 
 use super::{loading::GameAssets, State};
-
-const BUTTON_COLOR: Color = Color::rgb(0.7, 0.7, 0.7);
-const BUTTON_HOVER_COLOR: Color = Color::rgb(0.8, 0.8, 0.8);
-const BUTTON_PRESSED_COLOR: Color = Color::rgb(0.6, 0.6, 0.6);
 
 #[derive(Component)]
 struct MainMenuRoot;
@@ -59,7 +58,7 @@ fn setup(mut commands: Commands, game_assets: Res<GameAssets>) {
                         TextStyle {
                             font: game_assets.font.clone(),
                             font_size: 60.0,
-                            color: Color::BLACK,
+                            color: TEXT_COLOR,
                         },
                     ));
                 });
@@ -92,7 +91,7 @@ fn add_button(parent: &mut ChildBuilder, text: &str, button: MenuButton, font: H
                 TextStyle {
                     font,
                     font_size: 40.0,
-                    color: Color::BLACK,
+                    color: BUTTON_TEXT_COLOR,
                 },
             ));
         })
@@ -113,7 +112,7 @@ fn button_system(
     for (button, interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Clicked => {
-                *color = BUTTON_PRESSED_COLOR.into();
+                *color = BUTTON_BACKGROUND_COLOR_PRESSED.into();
                 match button {
                     MenuButton::Start => next_state.set(State::Game),
                     MenuButton::Sound => {
@@ -130,10 +129,10 @@ fn button_system(
             }
             Interaction::Hovered => {
                 sound_channel.play(audio_assets.blip1.clone());
-                *color = BUTTON_HOVER_COLOR.into();
+                *color = BUTTON_BACKGROUND_COLOR_HOVER.into();
             }
             Interaction::None => {
-                *color = BUTTON_COLOR.into();
+                *color = BUTTON_BACKGROUND_COLOR.into();
             }
         }
     }

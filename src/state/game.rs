@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{enemies, gameplay, grid, input, inventory, tower, ui};
+use crate::{
+    enemies, gameplay, grid, input, tower,
+    ui::{self, inventory, sidebar, tower_options},
+};
 
 pub struct GamePlugin;
 
@@ -10,6 +13,7 @@ impl Plugin for GamePlugin {
             .add_event::<tower::debuffs::AddDebuff>()
             .insert_resource(gameplay::GameManager::new())
             .insert_resource(ui::UiData::default())
+            .insert_resource(ui::UiStateResource::default())
             .insert_resource(input::HoverPosition::default())
             .insert_resource(inventory::Inventory::default())
             .add_system(setup.in_schedule(OnEnter(super::State::Game)))
@@ -38,11 +42,11 @@ impl Plugin for GamePlugin {
             .add_system(tower::laser::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(inventory::give_random_tower.in_set(OnUpdate(super::State::Game)))
             .add_system(ui::update_selection_indicator.in_set(OnUpdate(super::State::Game)))
-            .add_system(ui::draw_inventory.in_set(OnUpdate(super::State::Game)))
-            .add_system(ui::handle_inventory_buttons.in_set(OnUpdate(super::State::Game)))
-            .add_system(ui::handle_tower_options.in_set(OnUpdate(super::State::Game)))
-            .add_system(ui::draw_sidebar.in_set(OnUpdate(super::State::Game)))
-            .add_system(ui::handle_toggle_rotation_button.in_set(OnUpdate(super::State::Game)))
+            .add_system(inventory::draw_inventory.in_set(OnUpdate(super::State::Game)))
+            .add_system(inventory::handle_inventory_buttons.in_set(OnUpdate(super::State::Game)))
+            .add_system(tower_options::handle_tower_options.in_set(OnUpdate(super::State::Game)))
+            .add_system(sidebar::draw_sidebar.in_set(OnUpdate(super::State::Game)))
+            .add_system(sidebar::handle_toggle_rotation_button.in_set(OnUpdate(super::State::Game)))
             .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(input::mouse_hover_handler.in_set(OnUpdate(super::State::Game)));
     }

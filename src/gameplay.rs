@@ -7,7 +7,7 @@ use crate::{
     grid::Map,
     state::loading::GameAssets,
     tower::Tower,
-    ui::{present_tower_options, UiData, UiState},
+    ui::{tower_options::present_tower_options, UiState, UiStateResource},
 };
 
 pub struct WaveSegment {
@@ -102,7 +102,7 @@ pub fn gameloop(
     enemies: Query<&Enemy>,
     map: Res<Map>,
     time: Res<Time>,
-    mut ui_data: ResMut<UiData>,
+    mut ui_state: ResMut<UiStateResource>,
     game_assets: Res<GameAssets>,
 ) {
     match game_manager.wave_state {
@@ -162,7 +162,7 @@ pub fn gameloop(
                     options.push(Tower::new_random());
                 }
                 present_tower_options(commands, game_assets.font.clone(), &options);
-                ui_data.state = UiState::PickingTower(options);
+                ui_state.state = UiState::PickingTower(options);
             }
         }
     }

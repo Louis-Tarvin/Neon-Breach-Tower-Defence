@@ -6,6 +6,7 @@ use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 use bevy_kira_audio::{AudioApp, AudioPlugin};
 use debug::DebugPlugin;
 use state::{game::GamePlugin, loading::GameAssets, main_menu::MainMenuPlugin};
+use ui::constants::BACKGROUND_COLOR;
 
 mod audio;
 mod debug;
@@ -13,7 +14,6 @@ mod enemies;
 mod gameplay;
 mod grid;
 mod input;
-mod inventory;
 mod state;
 mod tower;
 mod ui;
@@ -36,5 +36,6 @@ fn main() {
         .add_audio_channel::<MusicChannel>()
         .add_audio_channel::<SoundChannel>()
         .insert_resource(audio::VolumeSettings::default())
+        .insert_resource(ClearColor(BACKGROUND_COLOR))
         .run();
 }

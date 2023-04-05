@@ -1,6 +1,8 @@
 use bevy::{core_pipeline::bloom::BloomSettings, prelude::*};
 use bevy_asset_loader::prelude::AssetCollection;
 
+use crate::ui::constants::TEXT_COLOR;
+
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
     #[asset(path = "fonts/roboto.ttf")]
@@ -56,7 +58,7 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                 TextStyle {
                     font: asset_server.load("fonts/roboto.ttf"),
                     font_size: 40.0,
-                    color: Color::BLACK,
+                    color: TEXT_COLOR,
                 },
             ));
         });

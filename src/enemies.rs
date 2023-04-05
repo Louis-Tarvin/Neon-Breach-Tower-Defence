@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{grid::Map, state::loading::GameAssets, tower::debuffs::SpeedUpPoint};
+use crate::{
+    grid::Map, state::loading::GameAssets, tower::debuffs::SpeedUpPoint, ui::constants::GREEN,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub enum EnemyVariant {
@@ -166,7 +168,7 @@ pub fn update_healthbar(
                                     .spawn(SpriteBundle {
                                         sprite: Sprite {
                                             custom_size: Some(Vec2::new(20.0, 2.0)),
-                                            color: Color::rgb(0.0, 1.0, 0.0),
+                                            color: GREEN,
                                             ..Default::default()
                                         },
                                         transform: Transform::from_translation(Vec3::new(
