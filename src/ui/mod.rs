@@ -5,6 +5,7 @@ use crate::{input::HoverPosition, state::loading::GameAssets, tower::Tower};
 pub mod constants;
 pub mod inventory;
 pub mod sidebar;
+pub mod statusbar;
 pub mod tower_options;
 
 #[derive(Default, Debug)]

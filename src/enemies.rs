@@ -1,8 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{
-    grid::Map, state::loading::GameAssets, tower::debuffs::SpeedUpPoint, ui::constants::GREEN,
-};
+use crate::{grid::Map, tower::debuffs::SpeedUpPoint, ui::constants::GREEN};
 
 #[derive(Debug, Clone, Copy)]
 pub enum EnemyVariant {
@@ -68,24 +66,6 @@ pub fn update_enemy_grid_pos(
 
 #[derive(Component)]
 pub struct HealthBar(pub f32);
-
-pub fn spawn_enemies(
-    mut commands: Commands,
-    map: Res<Map>,
-    game_assets: Res<GameAssets>,
-    input: Res<Input<KeyCode>>,
-) {
-    if input.just_pressed(KeyCode::Space) {
-        let spawn_pos = Map::grid_to_world_pos((map.start_pos.0 as f32, map.start_pos.1 as f32));
-        commands
-            .spawn(SpriteBundle {
-                texture: game_assets.enemy.clone(),
-                transform: Transform::from_translation(Vec3::new(spawn_pos.x, spawn_pos.y, 1.0)),
-                ..Default::default()
-            })
-            .insert(Enemy::new(5.0, 20.0, map.start_pos));
-    }
-}
 
 pub fn enemy_movement(
     mut commands: Commands,

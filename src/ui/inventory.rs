@@ -188,9 +188,8 @@ pub fn handle_inventory_buttons(
     mut ui_state: ResMut<UiStateResource>,
     mut query: Query<(&InventoryTower, &Interaction, &mut BackgroundColor), Changed<Interaction>>,
 ) {
-    match ui_state.state {
-        UiState::PlacingTower(_) | UiState::PickingTower(_) => return,
-        _ => (),
+    if let UiState::PickingTower(_) = ui_state.state {
+        return;
     }
     for (inventory_tower, interaction, mut background_color) in query.iter_mut() {
         match interaction {

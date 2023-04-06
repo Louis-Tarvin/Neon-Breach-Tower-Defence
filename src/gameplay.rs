@@ -106,11 +106,6 @@ pub fn gameloop(
     game_assets: Res<GameAssets>,
 ) {
     match game_manager.wave_state {
-        WaveState::Waiting => {
-            if game_manager.current_wave < game_manager.waves.len() {
-                game_manager.wave_state = WaveState::Spawning(0);
-            }
-        }
         WaveState::Spawning(num) => {
             game_manager.spawn_timer.tick(time.delta());
             if game_manager.spawn_timer.finished() {
@@ -164,6 +159,15 @@ pub fn gameloop(
                 present_tower_options(commands, game_assets.font.clone(), &options);
                 ui_state.state = UiState::PickingTower(options);
             }
+        }
+        _ => {}
+    }
+}
+
+pub fn start_next_wave(input: Res<Input<KeyCode>>, mut game_manager: ResMut<GameManager>) {
+    if input.just_pressed(KeyCode::Space) && game_manager.current_wave < game_manager.waves.len() {
+        if let WaveState::Waiting = game_manager.wave_state {
+            game_manager.wave_state = WaveState::Spawning(0);
         }
     }
 }

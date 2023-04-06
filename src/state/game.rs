@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     enemies, gameplay, grid, input, tower,
-    ui::{self, inventory, sidebar, tower_options},
+    ui::{self, inventory, sidebar, statusbar, tower_options},
 };
 
 pub struct GamePlugin;
@@ -18,8 +18,9 @@ impl Plugin for GamePlugin {
             .insert_resource(inventory::Inventory::default())
             .add_system(setup.in_schedule(OnEnter(super::State::Game)))
             .add_system(grid::load_map.in_schedule(OnEnter(super::State::Game)))
+            .add_system(statusbar::draw_status_bar.in_schedule(OnEnter(super::State::Game)))
             .add_system(gameplay::gameloop.in_set(OnUpdate(super::State::Game)))
-            .add_system(enemies::spawn_enemies.in_set(OnUpdate(super::State::Game)))
+            .add_system(gameplay::start_next_wave.in_set(OnUpdate(super::State::Game)))
             .add_systems(
                 (
                     enemies::enemy_movement.in_set(OnUpdate(super::State::Game)),
@@ -47,6 +48,7 @@ impl Plugin for GamePlugin {
             .add_system(tower_options::handle_tower_options.in_set(OnUpdate(super::State::Game)))
             .add_system(sidebar::draw_sidebar.in_set(OnUpdate(super::State::Game)))
             .add_system(sidebar::handle_toggle_rotation_button.in_set(OnUpdate(super::State::Game)))
+            .add_system(statusbar::update_status_bar_text.in_set(OnUpdate(super::State::Game)))
             .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)))
             .add_system(input::mouse_hover_handler.in_set(OnUpdate(super::State::Game)));
     }

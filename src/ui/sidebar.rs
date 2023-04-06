@@ -37,8 +37,8 @@ pub fn draw_sidebar(
                     size: Size::new(Val::Px(250.0), Val::Auto),
                     position_type: PositionType::Absolute,
                     position: UiRect {
-                        right: Val::Px(0.0),
-                        top: Val::Px(0.0),
+                        left: Val::Px(0.0),
+                        top: Val::Px(50.0),
                         ..Default::default()
                     },
                     flex_direction: FlexDirection::Column,
