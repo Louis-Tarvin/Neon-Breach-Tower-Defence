@@ -4,6 +4,10 @@ use bevy_kira_audio::AudioSource;
 
 #[derive(AssetCollection, Resource)]
 pub struct AudioAssets {
+    #[asset(path = "audio/bgm-main.ogg")]
+    pub bgm_main: Handle<AudioSource>,
+    #[asset(path = "audio/bgm-drums.ogg")]
+    pub bgm_drums: Handle<AudioSource>,
     #[asset(path = "audio/blip1.wav")]
     pub blip1: Handle<AudioSource>,
     #[asset(path = "audio/blip2.wav")]
@@ -41,5 +45,7 @@ impl VolumeSettings {
 
 #[derive(Component, Resource, Default, Clone)]
 pub struct MusicChannel;
+#[derive(Component, Resource, Default, Clone)]
+pub struct DrumsChannel;
 #[derive(Component, Resource, Default, Clone)]
 pub struct SoundChannel;

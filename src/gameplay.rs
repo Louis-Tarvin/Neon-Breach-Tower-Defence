@@ -1,8 +1,10 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 
 use crate::{
+    audio::{DrumsChannel, VolumeSettings},
     enemies::{Enemy, EnemyVariant},
     grid::Map,
     state::loading::GameAssets,
@@ -104,6 +106,7 @@ pub fn gameloop(
     time: Res<Time>,
     mut ui_state: ResMut<UiStateResource>,
     game_assets: Res<GameAssets>,
+    drums_channel: Res<AudioChannel<DrumsChannel>>,
 ) {
     match game_manager.wave_state {
         WaveState::Spawning(num) => {
@@ -150,6 +153,7 @@ pub fn gameloop(
         WaveState::Finished => {
             if enemies.iter().count() == 0 {
                 println!("Wave {} finished", game_manager.current_wave);
+                drums_channel.set_volume(0.0);
                 game_manager.current_wave += 1;
                 game_manager.wave_state = WaveState::Waiting;
                 let mut options = Vec::new();
@@ -164,9 +168,17 @@ pub fn gameloop(
     }
 }
 
-pub fn start_next_wave(input: Res<Input<KeyCode>>, mut game_manager: ResMut<GameManager>) {
-    if input.just_pressed(KeyCode::Space) && game_manager.current_wave < game_manager.waves.len() {
+pub fn start_next_wave(
+    input: Res<Input<KeyCode>>,
+    mut game_manager: ResMut<GameManager>,
+    drums_channel: Res<AudioChannel<DrumsChannel>>,
+    volume_settings: Res<VolumeSettings>,
+) {
+    if (input.just_pressed(KeyCode::Space) && game_manager.current_wave < game_manager.waves.len())
+        || game_manager.current_wave == 0
+    {
         if let WaveState::Waiting = game_manager.wave_state {
+            drums_channel.set_volume(volume_settings.music_vol);
             game_manager.wave_state = WaveState::Spawning(0);
         }
     }

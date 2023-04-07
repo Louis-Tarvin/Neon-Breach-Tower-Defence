@@ -1,8 +1,10 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
-use bevy_kira_audio::{AudioChannel, AudioControl};
+use bevy_kira_audio::{AudioChannel, AudioControl, AudioTween};
 
 use crate::{
-    audio::{AudioAssets, MusicChannel, SoundChannel, VolumeSettings},
+    audio::{AudioAssets, DrumsChannel, MusicChannel, SoundChannel, VolumeSettings},
     ui::constants::*,
 };
 
@@ -28,7 +30,21 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
-fn setup(mut commands: Commands, game_assets: Res<GameAssets>) {
+fn setup(
+    mut commands: Commands,
+    game_assets: Res<GameAssets>,
+    audio_assets: Res<AudioAssets>,
+    music_channel: Res<AudioChannel<MusicChannel>>,
+    drums_channel: Res<AudioChannel<DrumsChannel>>,
+) {
+    music_channel
+        .play(audio_assets.bgm_main.clone())
+        .looped()
+        .fade_in(AudioTween::linear(Duration::from_secs(3)));
+    drums_channel
+        .play(audio_assets.bgm_drums.clone())
+        .looped()
+        .with_volume(0.0);
     commands
         .spawn(NodeBundle {
             style: Style {

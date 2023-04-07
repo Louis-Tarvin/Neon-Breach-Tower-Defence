@@ -69,7 +69,8 @@ pub fn shoot(
                 if let Ok((_enemy, enemy_transform)) = enemies.get(*entity) {
                     let direction =
                         (enemy_transform.translation - transform.translation).normalize();
-                    let projectile_pos = transform.translation + direction * 0.5;
+                    let mut projectile_pos = transform.translation + direction * 0.5;
+                    projectile_pos.z = 2.0;
                     commands
                         .spawn(SpriteBundle {
                             texture: game_assets.bullet.clone(),

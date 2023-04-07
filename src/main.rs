@@ -1,6 +1,6 @@
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
-use audio::{AudioAssets, MusicChannel, SoundChannel};
+use audio::{AudioAssets, DrumsChannel, MusicChannel, SoundChannel};
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 use bevy_kira_audio::{AudioApp, AudioPlugin};
@@ -34,6 +34,7 @@ fn main() {
         .add_system(state::loading::setup.in_schedule(OnEnter(state::State::Loading)))
         .add_system(state::loading::cleanup.in_schedule(OnExit(state::State::Loading)))
         .add_audio_channel::<MusicChannel>()
+        .add_audio_channel::<DrumsChannel>()
         .add_audio_channel::<SoundChannel>()
         .insert_resource(audio::VolumeSettings::default())
         .insert_resource(ClearColor(BACKGROUND_COLOR))
