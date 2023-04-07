@@ -47,15 +47,22 @@ impl TowerType {
 }
 impl Distribution<TowerType> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TowerType {
-        match rng.gen_range(0..=4) {
-            0 => TowerType::ChargeShot,
-            1 => TowerType::Laser,
-            2 => TowerType::Sniper,
-            3 => TowerType::Jammer,
-            4 => TowerType::Missile,
+        match rng.gen_range(0..=8) {
+            0..=2 => TowerType::ChargeShot,
+            3..=4 => TowerType::Laser,
+            5..=6 => TowerType::Sniper,
+            7 => TowerType::Jammer,
+            8 => TowerType::Missile,
             _ => unreachable!(),
         }
     }
+}
+
+#[derive(Debug)]
+pub enum TargetMode {
+    First,
+    Closest,
+    Random,
 }
 
 #[derive(Component, Debug)]
@@ -64,6 +71,8 @@ pub struct Tower {
     pub rate: f32,
     pub variant: TowerType,
     pub debuff: Debuff,
+    pub overheating: bool,
+    pub target_mode: TargetMode,
 }
 impl Tower {
     pub fn new(damage: f32, rate: f32, variant: TowerType, debuff: Debuff) -> Self {
@@ -72,6 +81,8 @@ impl Tower {
             rate,
             variant,
             debuff,
+            overheating: false,
+            target_mode: TargetMode::First,
         }
     }
 
@@ -80,15 +91,45 @@ impl Tower {
         let variant: TowerType = rng.gen();
         match variant {
             TowerType::ChargeShot => Self::new(
-                (rng.gen_range(0.7..=1.3) * 100.0_f32).round() / 100.0,
+                (rng.gen_range(0.8..=1.3) * 100.0_f32).round() / 100.0,
                 1.0,
                 variant,
                 rand::random(),
             ),
-            TowerType::Laser => Self::new(0.2, 4.0, variant, rand::random()),
+            TowerType::Laser => loop {
+                let debuff: Debuff = rand::random();
+                match debuff {
+                    Debuff::TargetClosest | Debuff::TargetRandom => {
+                        // These debuffs are not compatible with laser
+                        continue;
+                    }
+                    _ => break Self::new(0.2, 4.0, variant, debuff),
+                }
+            },
             TowerType::Sniper => Self::new(4.0, 0.3, variant, rand::random()),
-            TowerType::Jammer => Self::new(0.0, 0.0, variant, rand::random()),
-            TowerType::Missile => Self::new(10.0, 0.15, variant, rand::random()),
+            TowerType::Jammer => loop {
+                let debuff: Debuff = rand::random();
+                match debuff {
+                    Debuff::TargetClosest
+                    | Debuff::TargetRandom
+                    | Debuff::MoveSpeedUp(_)
+                    | Debuff::Overheat => {
+                        // These debuffs are not compatible with jammer
+                        continue;
+                    }
+                    _ => break Self::new(0.0, 0.0, variant, debuff),
+                }
+            },
+            TowerType::Missile => loop {
+                let debuff: Debuff = rand::random();
+                match debuff {
+                    Debuff::TargetClosest | Debuff::TargetRandom => {
+                        // These debuffs are not compatible with missile launcher
+                        continue;
+                    }
+                    _ => break Self::new(10.0, 0.15, variant, debuff),
+                }
+            },
         }
     }
 
@@ -127,31 +168,122 @@ pub fn handle_tower_placement(
         ui_data.selected_pos = Some(event.grid_pos);
         let (x, y) = event.grid_pos;
         // Apply debuff to self
-        if let Debuff::MoveSpeedUp(percent) = &tower.debuff {
-            debuff_events.send(AddDebuff {
-                grid_pos: (x, y),
-                debuff: Debuff::MoveSpeedUp(*percent),
-            });
+        match &tower.debuff {
+            Debuff::MoveSpeedUp(percent) => {
+                debuff_events.send(AddDebuff {
+                    grid_pos: (x, y),
+                    debuff: Debuff::MoveSpeedUp(*percent),
+                });
+            }
+            Debuff::Overheat => {
+                debuff_events.send(AddDebuff {
+                    grid_pos: (x, y),
+                    debuff: Debuff::Overheat,
+                });
+            }
+            Debuff::TargetClosest => {
+                debuff_events.send(AddDebuff {
+                    grid_pos: (x, y),
+                    debuff: Debuff::TargetClosest,
+                });
+            }
+            Debuff::TargetRandom => {
+                debuff_events.send(AddDebuff {
+                    grid_pos: (x, y),
+                    debuff: Debuff::TargetRandom,
+                });
+            }
+            _ => (),
         }
         // Apply debuff to neighbours
-        match &tower.debuff {
-            Debuff::ReduceNeighbourDamage(percent) => {
-                for &(dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
+        for &(dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
+            match &tower.debuff {
+                Debuff::ReduceNeighbourDamage(percent) => {
                     debuff_events.send(AddDebuff {
                         grid_pos: (x + dx, y + dy),
                         debuff: Debuff::ReduceNeighbourDamage(*percent),
                     });
                 }
-            }
-            Debuff::ReduceNeighbourRate(percent) => {
-                for &(dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
+                Debuff::ReduceNeighbourRate(percent) => {
                     debuff_events.send(AddDebuff {
                         grid_pos: (x + dx, y + dy),
                         debuff: Debuff::ReduceNeighbourRate(*percent),
                     });
                 }
+                Debuff::TurretIncompatible => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x + dx, y + dy),
+                        debuff: Debuff::TurretIncompatible,
+                    });
+                }
+                Debuff::SniperIncompatible => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x + dx, y + dy),
+                        debuff: Debuff::SniperIncompatible,
+                    });
+                }
+                Debuff::LaserIncompatible => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x + dx, y + dy),
+                        debuff: Debuff::LaserIncompatible,
+                    });
+                }
+                Debuff::MissileIncompatible => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x + dx, y + dy),
+                        debuff: Debuff::MissileIncompatible,
+                    });
+                }
+                _ => {}
             }
-            _ => {}
+        }
+        // Apply debuff to row
+        for x in 0..=map.width {
+            match &tower.debuff {
+                Debuff::RowOverheat => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x.try_into().unwrap(), y),
+                        debuff: Debuff::Overheat,
+                    });
+                }
+                Debuff::ReduceRowDamage(percent) => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x.try_into().unwrap(), y),
+                        debuff: Debuff::ReduceNeighbourDamage(*percent),
+                    });
+                }
+                Debuff::ReduceRowRate(percent) => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x.try_into().unwrap(), y),
+                        debuff: Debuff::ReduceNeighbourRate(*percent),
+                    });
+                }
+                _ => (),
+            }
+        }
+        // Apply debuff to column
+        for y in 0..=map.height {
+            match &tower.debuff {
+                Debuff::ColumnOverheat => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x, y.try_into().unwrap()),
+                        debuff: Debuff::Overheat,
+                    });
+                }
+                Debuff::ReduceColumnDamage(percent) => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x, y.try_into().unwrap()),
+                        debuff: Debuff::ReduceNeighbourDamage(*percent),
+                    });
+                }
+                Debuff::ReduceColumnRate(percent) => {
+                    debuff_events.send(AddDebuff {
+                        grid_pos: (x, y.try_into().unwrap()),
+                        debuff: Debuff::ReduceNeighbourRate(*percent),
+                    });
+                }
+                _ => (),
+            }
         }
         // Apply neighbour debuff to self
         for &(dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
@@ -171,6 +303,60 @@ pub fn handle_tower_placement(
                         });
                     }
                     _ => {}
+                }
+            }
+        }
+        // Apply row debuffs to self
+        for x2 in 0..=map.width {
+            if let Some(entity) = map.placements.get(&(x2.try_into().unwrap(), y)) {
+                let neighbour_tower = query.get(*entity).expect("Tower entity not found");
+                match &neighbour_tower.debuff {
+                    Debuff::RowOverheat => {
+                        debuff_events.send(AddDebuff {
+                            grid_pos: (x, y),
+                            debuff: Debuff::Overheat,
+                        });
+                    }
+                    Debuff::ReduceRowDamage(percent) => {
+                        debuff_events.send(AddDebuff {
+                            grid_pos: (x, y),
+                            debuff: Debuff::ReduceNeighbourDamage(*percent),
+                        });
+                    }
+                    Debuff::ReduceRowRate(percent) => {
+                        debuff_events.send(AddDebuff {
+                            grid_pos: (x, y),
+                            debuff: Debuff::ReduceNeighbourRate(*percent),
+                        });
+                    }
+                    _ => (),
+                }
+            }
+        }
+        // Apply column debuffs to self
+        for y2 in 0..=map.height {
+            if let Some(entity) = map.placements.get(&(x, y2.try_into().unwrap())) {
+                let neighbour_tower = query.get(*entity).expect("Tower entity not found");
+                match &neighbour_tower.debuff {
+                    Debuff::ColumnOverheat => {
+                        debuff_events.send(AddDebuff {
+                            grid_pos: (x, y),
+                            debuff: Debuff::Overheat,
+                        });
+                    }
+                    Debuff::ReduceColumnDamage(percent) => {
+                        debuff_events.send(AddDebuff {
+                            grid_pos: (x, y),
+                            debuff: Debuff::ReduceNeighbourDamage(*percent),
+                        });
+                    }
+                    Debuff::ReduceColumnRate(percent) => {
+                        debuff_events.send(AddDebuff {
+                            grid_pos: (x, y),
+                            debuff: Debuff::ReduceNeighbourRate(*percent),
+                        });
+                    }
+                    _ => (),
                 }
             }
         }

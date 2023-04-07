@@ -50,6 +50,9 @@ pub fn shoot(
                 .timer
                 .set_duration(Duration::from_secs_f32(1.0 / tower.rate));
             laser.timer.reset();
+            if tower.overheating {
+                continue; // Don't shoot if overheating
+            }
             let grid_pos = Map::get_grid_pos(transform.translation.truncate());
             match laser.direction {
                 Direction::Up => {

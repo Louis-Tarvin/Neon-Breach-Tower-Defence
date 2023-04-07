@@ -15,6 +15,7 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
         .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                padding: UiRect::all(Val::Px(10.0)),
                 position_type: PositionType::Absolute,
                 position: UiRect {
                     left: Val::Px(0.0),

@@ -1,15 +1,34 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use rand::{distributions::Standard, prelude::Distribution, Rng};
 
-use crate::grid::Map;
+use crate::{
+    gameplay::{GameManager, WaveState},
+    grid::Map,
+    state::loading::GameAssets,
+};
 
-use super::Tower;
+use super::{TargetMode, Tower, TowerType};
 
 #[derive(Debug)]
 pub enum Debuff {
     MoveSpeedUp(f32),
     ReduceNeighbourDamage(f32),
+    ReduceRowDamage(f32),
+    ReduceColumnDamage(f32),
     ReduceNeighbourRate(f32),
+    ReduceRowRate(f32),
+    ReduceColumnRate(f32),
+    Overheat,
+    RowOverheat,
+    ColumnOverheat,
+    TurretIncompatible,
+    SniperIncompatible,
+    LaserIncompatible,
+    MissileIncompatible,
+    TargetClosest,
+    TargetRandom,
     Immune,
 }
 impl Debuff {
@@ -24,9 +43,51 @@ impl Debuff {
                     percent
                 )
             }
+            Debuff::ReduceRowDamage(percent) => {
+                format!("Towers in the same row do {}% less damage", percent)
+            }
+            Debuff::ReduceColumnDamage(percent) => {
+                format!("Towers in the same column do {}% less damage", percent)
+            }
             Debuff::ReduceNeighbourRate(percent) => {
                 format!("Towers directly next to this one shoot {}% slower", percent)
             }
+            Debuff::ReduceRowRate(percent) => {
+                format!("Towers in the same row shoot {}% slower", percent)
+            }
+            Debuff::ReduceColumnRate(percent) => {
+                format!("Towers in the same column shoot {}% slower", percent)
+            }
+            Debuff::Overheat => {
+                "Has a chance to randomly overheat, rendering it ineffective for a few seconds"
+                    .to_string()
+            }
+            Debuff::RowOverheat => {
+                "All towers in the same row have a chance to randomly overheat, rendering them ineffective for a few seconds"
+                    .to_string()
+            }
+            Debuff::ColumnOverheat => {
+                "All towers in the same column have a chance to randomly overheat, rendering them ineffective for a few seconds"
+                    .to_string()
+            }
+            Debuff::TurretIncompatible => {
+                "Towers of type 'Turret' directly next to this one do half damage".to_string()
+            }
+            Debuff::SniperIncompatible => {
+                "Towers of type 'Sniper' directly next to this one do half damage".to_string()
+            }
+            Debuff::LaserIncompatible => {
+                "Towers of type 'Laser' directly next to this one do half damage".to_string()
+            }
+            Debuff::MissileIncompatible => {
+                "Towers of type 'Missile Launcher' directly next to this one do half damage"
+                    .to_string()
+            }
+            Debuff::TargetClosest => {
+                "This tower will target the closest enemy in range instead of the one at the front"
+                    .to_string()
+            }
+            Debuff::TargetRandom => "This tower will fire randomly at enemies in range".to_string(),
             Debuff::Immune => {
                 "This tower is immune to the effects of neighbouring tiles".to_string()
             }
@@ -35,11 +96,24 @@ impl Debuff {
 }
 impl Distribution<Debuff> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Debuff {
-        match rng.gen_range(0..=3) {
-            0 => Debuff::MoveSpeedUp((rng.gen_range(5.0..=25.0) as f32).round()),
+        match rng.gen_range(0..=16) {
+            0 => Debuff::MoveSpeedUp((rng.gen_range(10.0..=25.0) as f32).round()),
             1 => Debuff::ReduceNeighbourDamage((rng.gen_range(5.0..=25.0) as f32).round()),
             2 => Debuff::ReduceNeighbourRate((rng.gen_range(5.0..=25.0) as f32).round()),
             3 => Debuff::Immune,
+            4 => Debuff::Overheat,
+            5 => Debuff::TurretIncompatible,
+            6 => Debuff::SniperIncompatible,
+            7 => Debuff::LaserIncompatible,
+            8 => Debuff::MissileIncompatible,
+            9 => Debuff::TargetClosest,
+            10 => Debuff::TargetRandom,
+            11 => Debuff::RowOverheat,
+            12 => Debuff::ColumnOverheat,
+            13 => Debuff::ReduceRowDamage((rng.gen_range(5.0..=15.0) as f32).round()),
+            14 => Debuff::ReduceColumnDamage((rng.gen_range(5.0..=15.0) as f32).round()),
+            15 => Debuff::ReduceRowRate((rng.gen_range(5.0..=15.0) as f32).round()),
+            16 => Debuff::ReduceColumnRate((rng.gen_range(5.0..=15.0) as f32).round()),
             _ => unreachable!(),
         }
     }
@@ -78,7 +152,83 @@ pub fn debuff_event_handler(
                             0.0,
                         ));
                 }
+                Debuff::Overheat => {
+                    commands
+                        .entity(*entity)
+                        .insert(Overheatable(Timer::from_seconds(20.0, TimerMode::Once)));
+                }
+                Debuff::TurretIncompatible => {
+                    if let TowerType::ChargeShot = tower.variant {
+                        tower.reduce_damage_by(50.0);
+                    }
+                }
+                Debuff::SniperIncompatible => {
+                    if let TowerType::Sniper = tower.variant {
+                        tower.reduce_damage_by(50.0);
+                    }
+                }
+                Debuff::LaserIncompatible => {
+                    if let TowerType::Laser = tower.variant {
+                        tower.reduce_damage_by(50.0);
+                    }
+                }
+                Debuff::MissileIncompatible => {
+                    if let TowerType::Missile = tower.variant {
+                        tower.reduce_damage_by(50.0);
+                    }
+                }
+                Debuff::TargetClosest => tower.target_mode = TargetMode::Closest,
+                Debuff::TargetRandom => tower.target_mode = TargetMode::Random,
                 _ => (),
+            }
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct Overheatable(pub Timer);
+
+#[derive(Component)]
+pub struct OverheatIcon;
+
+pub fn handle_overheat(
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut Tower, &mut Overheatable, &Children), Without<OverheatIcon>>,
+    icons: Query<Entity, With<OverheatIcon>>,
+    game_assets: Res<GameAssets>,
+    game_manager: Res<GameManager>,
+    time: Res<Time>,
+) {
+    if let WaveState::Waiting = game_manager.wave_state {
+        return;
+    }
+    for (entity, mut tower, mut overheatable, children) in query.iter_mut() {
+        overheatable.0.tick(time.delta());
+        if overheatable.0.just_finished() {
+            if tower.overheating {
+                tower.overheating = false;
+                overheatable
+                    .0
+                    .set_duration(Duration::from_secs_f32(rand::random::<f32>() * 60.0 + 10.0));
+                overheatable.0.reset();
+                for child in children.iter() {
+                    if icons.get(*child).is_ok() {
+                        commands.entity(*child).despawn_recursive();
+                    }
+                }
+            } else {
+                tower.overheating = true;
+                overheatable.0.set_duration(Duration::from_secs_f32(8.0));
+                overheatable.0.reset();
+                commands.entity(entity).with_children(|parent| {
+                    parent
+                        .spawn(SpriteBundle {
+                            texture: game_assets.overheat.clone(),
+                            transform: Transform::from_xyz(0.0, 0.0, 4.0),
+                            ..Default::default()
+                        })
+                        .insert(OverheatIcon);
+                });
             }
         }
     }

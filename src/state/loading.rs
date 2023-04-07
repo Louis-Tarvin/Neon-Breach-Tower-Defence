@@ -39,6 +39,8 @@ pub struct GameAssets {
     pub bullet: Handle<Image>,
     #[asset(path = "missile.png")]
     pub missile: Handle<Image>,
+    #[asset(path = "tiles/overheat.png")]
+    pub overheat: Handle<Image>,
 }
 
 #[derive(Component)]

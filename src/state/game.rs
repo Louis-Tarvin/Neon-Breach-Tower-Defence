@@ -38,6 +38,7 @@ impl Plugin for GamePlugin {
             )
             .add_system(tower::handle_tower_placement.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::debuffs::debuff_event_handler.in_set(OnUpdate(super::State::Game)))
+            .add_system(tower::debuffs::handle_overheat.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::charge_shot::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::sniper::shoot.in_set(OnUpdate(super::State::Game)))
             .add_system(tower::handle_projectiles.in_set(OnUpdate(super::State::Game)))

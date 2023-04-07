@@ -58,6 +58,9 @@ pub fn spawn_missile(
             silo.timer
                 .set_duration(Duration::from_secs_f32(1.0 / tower.rate));
             silo.timer.reset();
+            if tower.overheating {
+                continue; // Don't shoot if overheating
+            }
             let grid_pos = Map::get_grid_pos(transform.translation.truncate());
             commands
                 .spawn(SpriteBundle {

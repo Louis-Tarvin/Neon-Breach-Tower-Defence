@@ -69,6 +69,7 @@ pub fn draw_tower_card(
         style: Style {
             size: Size::new(Val::Px(200.0), Val::Px(300.0)),
             margin: UiRect::all(Val::Px(10.0)),
+            padding: UiRect::all(Val::Px(5.0)),
             flex_direction: FlexDirection::Column,
             ..Default::default()
         },
@@ -125,7 +126,7 @@ pub fn draw_tower_card(
                         },
                     ),
                     style: Style {
-                        max_size: Size::new(Val::Px(200.0), Val::Px(60.0)),
+                        max_size: Size::new(Val::Px(190.0), Val::Px(60.0)),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -157,9 +158,7 @@ pub fn draw_tower_card(
         parent
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
-                    align_items: AlignItems::Center,
-                    justify_content: JustifyContent::Center,
+                    size: Size::new(Val::Percent(100.0), Val::Px(100.0)),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -175,7 +174,7 @@ pub fn draw_tower_card(
                         },
                     ),
                     style: Style {
-                        max_size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                        max_size: Size::new(Val::Px(190.0), Val::Px(100.0)),
                         ..Default::default()
                     },
                     ..Default::default()
