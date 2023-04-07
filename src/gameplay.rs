@@ -46,10 +46,38 @@ impl GameManager {
                 Wave { segments: vec![] },
                 Wave {
                     segments: vec![WaveSegment {
-                        enemy_type: EnemyVariant::Normal,
-                        count: 10,
+                        enemy_type: EnemyVariant::Weak,
+                        count: 5,
                         spawn_rate: 0.5,
                     }],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Weak,
+                            count: 5,
+                            spawn_rate: 1.0,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Normal,
+                            count: 5,
+                            spawn_rate: 0.5,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Normal,
+                            count: 10,
+                            spawn_rate: 0.75,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Fast,
+                            count: 3,
+                            spawn_rate: 0.5,
+                        },
+                    ],
                 },
                 Wave {
                     segments: vec![
@@ -63,24 +91,38 @@ impl GameManager {
                             count: 5,
                             spawn_rate: 0.5,
                         },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Normal,
+                            count: 5,
+                            spawn_rate: 1.5,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Fast,
+                            count: 10,
+                            spawn_rate: 1.0,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Strong,
+                            count: 1,
+                            spawn_rate: 0.7,
+                        },
                     ],
                 },
                 Wave {
                     segments: vec![
                         WaveSegment {
                             enemy_type: EnemyVariant::Normal,
-                            count: 10,
-                            spawn_rate: 0.5,
-                        },
-                        WaveSegment {
-                            enemy_type: EnemyVariant::Fast,
-                            count: 10,
-                            spawn_rate: 0.5,
+                            count: 5,
+                            spawn_rate: 0.7,
                         },
                         WaveSegment {
                             enemy_type: EnemyVariant::Strong,
-                            count: 10,
-                            spawn_rate: 0.5,
+                            count: 5,
+                            spawn_rate: 0.2,
                         },
                     ],
                 },
@@ -88,7 +130,7 @@ impl GameManager {
                     segments: vec![WaveSegment {
                         enemy_type: EnemyVariant::Boss,
                         count: 1,
-                        spawn_rate: 0.5,
+                        spawn_rate: 0.7,
                     }],
                 },
             ],
@@ -124,7 +166,13 @@ pub fn gameloop(
                         println!("Spawning enemy of type {:?}", segment.enemy_type);
                         commands
                             .spawn(SpriteBundle {
-                                texture: game_assets.enemy.clone(),
+                                texture: match segment.enemy_type {
+                                    EnemyVariant::Weak => game_assets.enemy1.clone(),
+                                    EnemyVariant::Normal => game_assets.enemy2.clone(),
+                                    EnemyVariant::Fast => game_assets.enemy3.clone(),
+                                    EnemyVariant::Strong => game_assets.enemy4.clone(),
+                                    EnemyVariant::Boss => game_assets.enemy5.clone(),
+                                },
                                 transform: Transform::from_translation(Vec3::new(
                                     spawn_pos.x,
                                     spawn_pos.y,

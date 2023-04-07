@@ -4,9 +4,12 @@ use crate::{
     grid::Map,
     state::loading::GameAssets,
     tower::{
-        charge_shot::{spawn_charge_shot, RangeIndicator},
+        charge_shot::spawn_charge_shot,
+        jammer::spawn_jammer,
         laser::{spawn_laser, Direction},
-        Tower, TowerPlaced, TowerType,
+        missile::spawn_silo,
+        sniper::spawn_sniper,
+        RangeIndicator, Tower, TowerPlaced, TowerType,
     },
     ui::{inventory::Inventory, UiData, UiState, UiStateResource},
 };
@@ -64,6 +67,38 @@ pub fn grid_click_handler(
                                     map,
                                 );
                             }
+                            TowerType::Sniper => {
+                                spawn_sniper(
+                                    tower,
+                                    commands,
+                                    grid_pos,
+                                    game_assets,
+                                    event_writer,
+                                    meshes,
+                                    materials,
+                                    map,
+                                );
+                            }
+                            TowerType::Jammer => {
+                                spawn_jammer(
+                                    tower,
+                                    commands,
+                                    grid_pos,
+                                    game_assets,
+                                    event_writer,
+                                    meshes,
+                                    materials,
+                                    map,
+                                );
+                            }
+                            TowerType::Missile => spawn_silo(
+                                tower,
+                                commands,
+                                grid_pos,
+                                game_assets,
+                                event_writer,
+                                map,
+                            ),
                         }
                         ui_state.state = UiState::Normal;
                     }

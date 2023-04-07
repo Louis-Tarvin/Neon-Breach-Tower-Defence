@@ -90,7 +90,7 @@ pub fn draw_sidebar(
                             .with_children(|parent| {
                                 parent.spawn(TextBundle {
                                     text: Text::from_section(
-                                        format!("DPS: {}", tower.damage * tower.rate),
+                                        format!("DPS: {:.2}", tower.damage * tower.rate),
                                         TextStyle {
                                             font: game_assets.font.clone(),
                                             font_size: 20.0,

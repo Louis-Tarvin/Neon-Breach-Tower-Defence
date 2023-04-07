@@ -2,16 +2,16 @@ use std::time::Duration;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
-use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets, ui::constants::BLUE};
+use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets, ui::constants::RED};
 
 use super::{Projectile, RangeIndicator, RotatingTurret, Tower, TowerPlaced};
 
 #[derive(Component, Debug)]
-pub struct ChargeShot {
+pub struct Sniper {
     pub range: f32,
     pub timer: Timer,
 }
-impl ChargeShot {
+impl Sniper {
     pub fn new(range: f32, rate: f32) -> Self {
         Self {
             range,
@@ -22,7 +22,7 @@ impl ChargeShot {
 
 pub fn shoot(
     mut commands: Commands,
-    mut query: Query<(&Tower, &mut ChargeShot, &Transform, &Children), Without<Enemy>>,
+    mut query: Query<(&Tower, &mut Sniper, &Transform, &Children), Without<Enemy>>,
     enemies: Query<(&Enemy, &Transform), Without<Tower>>,
     mut rotator_query: Query<
         &mut Transform,
@@ -32,15 +32,15 @@ pub fn shoot(
     time: Res<Time>,
     game_assets: Res<GameAssets>,
 ) {
-    for (tower, mut charge_shot, transform, children) in query.iter_mut() {
-        charge_shot.timer.tick(time.delta());
-        if charge_shot.timer.finished() {
-            charge_shot
+    for (tower, mut sniper, transform, children) in query.iter_mut() {
+        sniper.timer.tick(time.delta());
+        if sniper.timer.finished() {
+            sniper
                 .timer
                 .set_duration(Duration::from_secs_f32(1.0 / tower.rate));
-            charge_shot.timer.reset();
+            sniper.timer.reset();
             // Find the enemy that has travelled the furthest and is within range
-            let max_range = charge_shot.range.ceil() as i32;
+            let max_range = sniper.range.ceil() as i32;
             let mut furthest_enemy = None;
             let mut furthest_distance = 0.0;
             for x in -max_range..=max_range {
@@ -53,7 +53,7 @@ pub fn shoot(
                             if let Ok((enemy, enemy_transform)) = enemies.get(*entity) {
                                 let distance =
                                     transform.translation.distance(enemy_transform.translation);
-                                if distance <= charge_shot.range * 32.0 + 16.0
+                                if distance <= sniper.range * 32.0 + 16.0
                                     && enemy.distance_travelled > furthest_distance
                                 {
                                     furthest_distance = enemy.distance_travelled;
@@ -75,7 +75,7 @@ pub fn shoot(
                         .spawn(SpriteBundle {
                             texture: game_assets.bullet.clone(),
                             sprite: Sprite {
-                                color: BLUE * 5.0,
+                                color: RED * 5.0,
                                 ..Default::default()
                             },
                             transform: Transform::from_translation(projectile_pos),
@@ -83,7 +83,7 @@ pub fn shoot(
                         })
                         .insert(Projectile {
                             damage: tower.damage,
-                            speed: 150.0,
+                            speed: 350.0,
                             target: *entity,
                         });
                     // Rotate the turret
@@ -100,7 +100,7 @@ pub fn shoot(
     }
 }
 
-pub fn spawn_charge_shot(
+pub fn spawn_sniper(
     tower: Tower,
     mut commands: Commands,
     grid_pos: (i8, i8),
@@ -120,13 +120,13 @@ pub fn spawn_charge_shot(
             )),
             ..Default::default()
         })
-        .insert(ChargeShot::new(1.0, tower.rate))
+        .insert(Sniper::new(3.0, tower.rate))
         .insert(tower)
         .with_children(|parent| {
             // Circle used to show the range of the tower
             parent
                 .spawn(MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Circle::new(1.5 * 32.0).into()).into(),
+                    mesh: meshes.add(shape::Circle::new(3.5 * 32.0).into()).into(),
                     material: materials.add(ColorMaterial::from(Color::rgba(1.0, 0.0, 0.0, 0.2))),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
                     visibility: Visibility::Hidden,
@@ -135,7 +135,7 @@ pub fn spawn_charge_shot(
                 .insert(RangeIndicator);
             parent
                 .spawn(SpriteBundle {
-                    texture: game_assets.turret.clone(),
+                    texture: game_assets.sniper.clone(),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
                     ..Default::default()
                 })

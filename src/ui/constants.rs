@@ -11,3 +11,4 @@ pub const BUTTON_BACKGROUND_COLOR_PRESSED: Color = Color::rgb(0.18, 0.19, 0.21);
 pub const BUTTON_TEXT_COLOR: Color = Color::rgb(0.77, 0.78, 0.78);
 pub const RED: Color = Color::rgb(0.8, 0.4, 0.4);
 pub const GREEN: Color = Color::rgb(0.41, 0.74, 0.41);
+pub const BLUE: Color = Color::rgb(0.4, 0.4, 0.8);

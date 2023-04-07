@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets};
@@ -18,10 +20,10 @@ pub struct Laser {
     pub timer: Timer,
 }
 impl Laser {
-    pub fn new(direction: Direction, cooldown: f32) -> Self {
+    pub fn new(direction: Direction, rate: f32) -> Self {
         Self {
             direction,
-            timer: Timer::from_seconds(cooldown, TimerMode::Repeating),
+            timer: Timer::from_seconds(1.0 / rate, TimerMode::Once),
         }
     }
 
@@ -44,6 +46,10 @@ pub fn shoot(
     for (tower, mut laser, transform) in query.iter_mut() {
         laser.timer.tick(time.delta());
         if laser.timer.finished() {
+            laser
+                .timer
+                .set_duration(Duration::from_secs_f32(1.0 / tower.rate));
+            laser.timer.reset();
             let grid_pos = Map::get_grid_pos(transform.translation.truncate());
             match laser.direction {
                 Direction::Up => {
@@ -131,8 +137,8 @@ pub fn spawn_laser(
             .with_rotation(rotation),
             ..Default::default()
         })
+        .insert(Laser::new(direction, tower.rate))
         .insert(tower)
-        .insert(Laser::new(direction, 1.0 / 3.0))
         .with_children(|parent| {
             // Laser beam
             spawn_laser_beam(parent, grid_pos, direction, meshes, materials, &map);

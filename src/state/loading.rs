@@ -7,20 +7,38 @@ use crate::ui::constants::TEXT_COLOR;
 pub struct GameAssets {
     #[asset(path = "fonts/roboto.ttf")]
     pub font: Handle<Font>,
-    #[asset(path = "enemy.png")]
-    pub enemy: Handle<Image>,
+    #[asset(path = "enemy1.png")]
+    pub enemy1: Handle<Image>,
+    #[asset(path = "enemy2.png")]
+    pub enemy2: Handle<Image>,
+    #[asset(path = "enemy3.png")]
+    pub enemy3: Handle<Image>,
+    #[asset(path = "enemy4.png")]
+    pub enemy4: Handle<Image>,
+    #[asset(path = "enemy5.png")]
+    pub enemy5: Handle<Image>,
     #[asset(path = "tiles/tile_select.png")]
     pub tile_select: Handle<Image>,
     #[asset(path = "tiles/empty.png")]
     pub empty_tile: Handle<Image>,
     #[asset(path = "tiles/buildable.png")]
     pub buildable_tile: Handle<Image>,
-    #[asset(path = "tiles/chargeshot.png")]
-    pub charge_shot: Handle<Image>,
+    #[asset(path = "tiles/pivot.png")]
+    pub pivot: Handle<Image>,
     #[asset(path = "tiles/laser.png")]
     pub laser: Handle<Image>,
+    #[asset(path = "tiles/missile_silo.png")]
+    pub silo: Handle<Image>,
+    #[asset(path = "tiles/turret.png")]
+    pub turret: Handle<Image>,
+    #[asset(path = "tiles/sniper.png")]
+    pub sniper: Handle<Image>,
+    #[asset(path = "tiles/dish.png")]
+    pub dish: Handle<Image>,
     #[asset(path = "bullet.png")]
     pub bullet: Handle<Image>,
+    #[asset(path = "missile.png")]
+    pub missile: Handle<Image>,
 }
 
 #[derive(Component)]

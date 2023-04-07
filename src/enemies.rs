@@ -4,6 +4,7 @@ use crate::{grid::Map, tower::debuffs::SpeedUpPoint, ui::constants::GREEN};
 
 #[derive(Debug, Clone, Copy)]
 pub enum EnemyVariant {
+    Weak,
     Normal,
     Fast,
     Strong,
@@ -35,6 +36,7 @@ impl Enemy {
 
     pub fn new_variant(variant: EnemyVariant, grid_pos: (i8, i8)) -> Self {
         match variant {
+            EnemyVariant::Weak => Self::new(3.0, 15.0, grid_pos),
             EnemyVariant::Normal => Self::new(5.0, 20.0, grid_pos),
             EnemyVariant::Fast => Self::new(5.0, 40.0, grid_pos),
             EnemyVariant::Strong => Self::new(20.0, 15.0, grid_pos),
@@ -124,7 +126,7 @@ pub fn update_healthbar(
     mut healthbars: Query<&mut HealthBar>,
 ) {
     for (entity, mut enemy) in enemies.iter_mut() {
-        if enemy.current_health < enemy.max_health {
+        if enemy.current_health < enemy.max_health && enemy.current_health > 0.0 {
             if let Some(hb_entity) = enemy.healthbar {
                 if let Ok(mut healthbar) = healthbars.get_mut(hb_entity) {
                     healthbar.0 = enemy.current_health / enemy.max_health;
