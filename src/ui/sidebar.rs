@@ -120,7 +120,7 @@ pub fn draw_sidebar(
                                         },
                                     ),
                                     style: Style {
-                                        max_size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                                        max_size: Size::new(Val::Px(200.0), Val::Px(100.0)),
                                         ..Default::default()
                                     },
                                     ..Default::default()

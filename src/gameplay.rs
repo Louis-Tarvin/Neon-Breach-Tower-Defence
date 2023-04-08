@@ -7,7 +7,7 @@ use crate::{
     audio::{DrumsChannel, VolumeSettings},
     enemies::{Enemy, EnemyVariant},
     grid::Map,
-    state::loading::GameAssets,
+    state::{loading::GameAssets, State},
     tower::Tower,
     ui::{tower_options::present_tower_options, UiState, UiStateResource},
 };
@@ -37,6 +37,8 @@ pub struct GameManager {
     pub waves: Vec<Wave>,
     pub wave_state: WaveState,
     pub spawn_timer: Timer,
+    pub lives: u16,
+    pub score: u32,
 }
 impl GameManager {
     pub fn new() -> Self {
@@ -136,6 +138,8 @@ impl GameManager {
             ],
             wave_state: WaveState::Waiting,
             spawn_timer: Timer::from_seconds(0.1, TimerMode::Once),
+            lives: 10,
+            score: 0,
         }
     }
 }
@@ -180,7 +184,7 @@ pub fn gameloop(
                                 )),
                                 ..Default::default()
                             })
-                            .insert(Enemy::new_variant(segment.enemy_type, map.start_pos));
+                            .insert(Enemy::new(segment.enemy_type, map.start_pos));
                         let cooldown = 1.0 / segment.spawn_rate;
                         game_manager
                             .spawn_timer
@@ -229,5 +233,11 @@ pub fn start_next_wave(
             drums_channel.set_volume(volume_settings.music_vol);
             game_manager.wave_state = WaveState::Spawning(0);
         }
+    }
+}
+
+pub fn game_over_check(game_manager: Res<GameManager>, mut next_state: ResMut<NextState<State>>) {
+    if game_manager.lives == 0 {
+        next_state.set(State::MainMenu);
     }
 }

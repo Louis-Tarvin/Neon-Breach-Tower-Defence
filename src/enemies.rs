@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{grid::Map, tower::debuffs::SpeedUpPoint, ui::constants::GREEN};
+use crate::{gameplay::GameManager, grid::Map, tower::debuffs::SpeedUpPoint, ui::constants::GREEN};
 
 #[derive(Debug, Clone, Copy)]
 pub enum EnemyVariant {
@@ -10,9 +10,21 @@ pub enum EnemyVariant {
     Strong,
     Boss,
 }
+impl EnemyVariant {
+    pub fn points(&self) -> u32 {
+        match self {
+            Self::Weak => 1,
+            Self::Normal => 2,
+            Self::Fast => 4,
+            Self::Strong => 10,
+            Self::Boss => 20,
+        }
+    }
+}
 
 #[derive(Debug, Component)]
 pub struct Enemy {
+    pub variant: EnemyVariant,
     pub max_health: f32,
     pub current_health: f32,
     pub healthbar: Option<Entity>,
@@ -22,25 +34,58 @@ pub struct Enemy {
     pub distance_travelled: f32,
 }
 impl Enemy {
-    pub fn new(health: f32, move_speed: f32, grid_pos: (i8, i8)) -> Self {
-        Self {
-            max_health: health,
-            current_health: health,
-            healthbar: None,
-            move_speed,
-            path_target: 0,
-            current_grid_pos: grid_pos,
-            distance_travelled: 0.0,
-        }
-    }
-
-    pub fn new_variant(variant: EnemyVariant, grid_pos: (i8, i8)) -> Self {
+    pub fn new(variant: EnemyVariant, grid_pos: (i8, i8)) -> Self {
         match variant {
-            EnemyVariant::Weak => Self::new(3.0, 15.0, grid_pos),
-            EnemyVariant::Normal => Self::new(5.0, 20.0, grid_pos),
-            EnemyVariant::Fast => Self::new(5.0, 40.0, grid_pos),
-            EnemyVariant::Strong => Self::new(20.0, 15.0, grid_pos),
-            EnemyVariant::Boss => Self::new(60.0, 10.0, grid_pos),
+            EnemyVariant::Weak => Self {
+                variant,
+                max_health: 3.0,
+                current_health: 3.0,
+                healthbar: None,
+                move_speed: 15.0,
+                path_target: 0,
+                current_grid_pos: grid_pos,
+                distance_travelled: 0.0,
+            },
+            EnemyVariant::Normal => Self {
+                variant,
+                max_health: 5.0,
+                current_health: 5.0,
+                healthbar: None,
+                move_speed: 20.0,
+                path_target: 0,
+                current_grid_pos: grid_pos,
+                distance_travelled: 0.0,
+            },
+            EnemyVariant::Fast => Self {
+                variant,
+                max_health: 5.0,
+                current_health: 5.0,
+                healthbar: None,
+                move_speed: 40.0,
+                path_target: 0,
+                current_grid_pos: grid_pos,
+                distance_travelled: 0.0,
+            },
+            EnemyVariant::Strong => Self {
+                variant,
+                max_health: 20.0,
+                current_health: 20.0,
+                healthbar: None,
+                move_speed: 15.0,
+                path_target: 0,
+                current_grid_pos: grid_pos,
+                distance_travelled: 0.0,
+            },
+            EnemyVariant::Boss => Self {
+                variant,
+                max_health: 80.0,
+                current_health: 80.0,
+                healthbar: None,
+                move_speed: 10.0,
+                path_target: 0,
+                current_grid_pos: grid_pos,
+                distance_travelled: 0.0,
+            },
         }
     }
 }
@@ -74,6 +119,7 @@ pub fn enemy_movement(
     mut map: ResMut<Map>,
     mut enemies: Query<(&mut Enemy, &mut Transform, Entity), Without<SpeedUpPoint>>,
     speed_up_points: Query<(&SpeedUpPoint, &Transform), Without<Enemy>>,
+    mut game_manager: ResMut<GameManager>,
     time: Res<Time>,
 ) {
     for (mut enemy, mut transform, entity) in enemies.iter_mut() {
@@ -98,7 +144,7 @@ pub fn enemy_movement(
             enemy.path_target += 1;
             if enemy.path_target >= map.path.len() {
                 // Enemy has reached the end
-                // TODO: Game over checking
+                game_manager.lives -= 1;
                 map.enemies
                     .get_mut(&enemy.current_grid_pos)
                     .unwrap()
@@ -180,6 +226,7 @@ pub fn check_killed(
     mut commands: Commands,
     enemies: Query<(Entity, &Enemy)>,
     mut map: ResMut<Map>,
+    mut game_manager: ResMut<GameManager>,
 ) {
     for (entity, enemy) in enemies.iter() {
         if enemy.current_health <= 0.0 {
@@ -187,6 +234,7 @@ pub fn check_killed(
                 entities.retain(|e| *e != entity);
             }
             commands.entity(entity).despawn_recursive();
+            game_manager.score += enemy.variant.points();
         }
     }
 }

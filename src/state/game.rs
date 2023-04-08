@@ -1,6 +1,8 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 
 use crate::{
+    audio::{DrumsChannel, MusicChannel},
     enemies, gameplay, grid, input, tower,
     ui::{self, inventory, sidebar, statusbar, tower_options},
 };
@@ -11,16 +13,12 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<tower::TowerPlaced>()
             .add_event::<tower::debuffs::AddDebuff>()
-            .insert_resource(gameplay::GameManager::new())
-            .insert_resource(ui::UiData::default())
-            .insert_resource(ui::UiStateResource::default())
-            .insert_resource(input::HoverPosition::default())
-            .insert_resource(inventory::Inventory::default())
             .add_system(setup.in_schedule(OnEnter(super::State::Game)))
             .add_system(grid::load_map.in_schedule(OnEnter(super::State::Game)))
             .add_system(statusbar::draw_status_bar.in_schedule(OnEnter(super::State::Game)))
             .add_system(gameplay::gameloop.in_set(OnUpdate(super::State::Game)))
             .add_system(gameplay::start_next_wave.in_set(OnUpdate(super::State::Game)))
+            .add_system(gameplay::game_over_check.in_set(OnUpdate(super::State::Game)))
             .add_systems(
                 (
                     enemies::enemy_movement.in_set(OnUpdate(super::State::Game)),
@@ -54,16 +52,46 @@ impl Plugin for GamePlugin {
             .add_system(sidebar::draw_sidebar.in_set(OnUpdate(super::State::Game)))
             .add_system(sidebar::handle_toggle_rotation_button.in_set(OnUpdate(super::State::Game)))
             .add_system(statusbar::update_status_bar_text.in_set(OnUpdate(super::State::Game)))
+            .add_system(statusbar::update_score_text.in_set(OnUpdate(super::State::Game)))
+            .add_system(statusbar::update_lives_text.in_set(OnUpdate(super::State::Game)))
+            .add_system(statusbar::handle_normal_speed_button.in_set(OnUpdate(super::State::Game)))
+            .add_system(statusbar::handle_fast_speed_button.in_set(OnUpdate(super::State::Game)))
             .add_system(input::grid_click_handler.in_set(OnUpdate(super::State::Game)))
-            .add_system(input::mouse_hover_handler.in_set(OnUpdate(super::State::Game)));
+            .add_system(input::mouse_hover_handler.in_set(OnUpdate(super::State::Game)))
+            .add_system(cleanup.in_schedule(OnExit(super::State::Game)));
     }
 }
 
-fn setup(mut cameras: Query<(&mut OrthographicProjection, &mut Transform)>) {
+fn setup(
+    mut commands: Commands,
+    mut cameras: Query<(&mut OrthographicProjection, &mut Transform)>,
+) {
+    // Insert resources
+    commands.insert_resource(gameplay::GameManager::new());
+    commands.insert_resource(ui::UiData::default());
+    commands.insert_resource(ui::UiStateResource::default());
+    commands.insert_resource(input::HoverPosition::default());
+    commands.insert_resource(inventory::Inventory::default());
+    commands.insert_resource(ui::statusbar::GameSpeed(false));
     // Position the camera
     for (mut projection, mut transform) in cameras.iter_mut() {
         projection.scale = 0.5;
-        transform.translation.x += 96.0;
-        transform.translation.y += 96.0;
+        transform.translation.x = 96.0;
+        transform.translation.y = 96.0;
     }
+}
+
+fn cleanup(
+    mut commands: Commands,
+    mut sprites: Query<Entity, With<Sprite>>,
+    mut nodes: Query<Entity, With<Node>>,
+    music_channel: Res<AudioChannel<MusicChannel>>,
+    drums_channel: Res<AudioChannel<DrumsChannel>>,
+) {
+    for entity in sprites.iter_mut().chain(nodes.iter_mut()) {
+        commands.entity(entity).despawn_recursive();
+    }
+
+    music_channel.stop();
+    drums_channel.stop();
 }

@@ -23,8 +23,10 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
+                flex_direction: FlexDirection::Column,
                 ..Default::default()
             },
+            background_color: Color::rgba(0.0, 0.0, 0.0, 0.5).into(),
             ..Default::default()
         })
         .insert(TowerOptionsRoot)
@@ -32,7 +34,7 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(400.0)),
+                        size: Size::new(Val::Percent(100.0), Val::Auto),
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
                         ..Default::default()
@@ -42,19 +44,32 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
                 .with_children(|parent| {
                     parent.spawn(TextBundle {
                         text: Text::from_section(
-                            "Select a tower",
+                            "Select a new tower",
                             TextStyle {
                                 font: font.clone(),
-                                font_size: 30.0,
+                                font_size: 50.0,
                                 color: TEXT_COLOR,
                             },
                         ),
                         ..Default::default()
                     });
                 });
-            (0..3).for_each(|i| {
-                draw_tower_card(parent, &towers[i], font.clone(), i, false);
-            });
+            parent
+                .spawn(NodeBundle {
+                    style: Style {
+                        size: Size::new(Val::Percent(100.0), Val::Px(400.0)),
+                        align_items: AlignItems::Center,
+                        justify_content: JustifyContent::Center,
+                        flex_direction: FlexDirection::Row,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    (0..3).for_each(|i| {
+                        draw_tower_card(parent, &towers[i], font.clone(), i, false);
+                    });
+                });
         });
 }
 
