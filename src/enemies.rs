@@ -94,8 +94,8 @@ impl Enemy {
             },
             EnemyVariant::Boss => Self {
                 variant,
-                max_health: 80.0 * health_multiplier,
-                current_health: 80.0 * health_multiplier,
+                max_health: 100.0 * health_multiplier,
+                current_health: 100.0 * health_multiplier,
                 healthbar: None,
                 move_speed: 10.0 * speed_multiplier,
                 path_target: 0,
@@ -104,8 +104,8 @@ impl Enemy {
             },
             EnemyVariant::StrongFast => Self {
                 variant,
-                max_health: 25.0 * health_multiplier,
-                current_health: 25.0 * health_multiplier,
+                max_health: 20.0 * health_multiplier,
+                current_health: 20.0 * health_multiplier,
                 healthbar: None,
                 move_speed: 35.0 * speed_multiplier,
                 path_target: 0,
@@ -114,8 +114,8 @@ impl Enemy {
             },
             EnemyVariant::UltraBoss => Self {
                 variant,
-                max_health: 200.0 * health_multiplier,
-                current_health: 200.0 * health_multiplier,
+                max_health: 250.0 * health_multiplier,
+                current_health: 250.0 * health_multiplier,
                 healthbar: None,
                 move_speed: 10.0 * speed_multiplier,
                 path_target: 0,

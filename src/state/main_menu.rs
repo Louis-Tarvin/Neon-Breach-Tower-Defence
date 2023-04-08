@@ -26,6 +26,7 @@ impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup.in_schedule(OnEnter(super::State::MainMenu)))
             .add_system(button_system.in_set(OnUpdate(super::State::MainMenu)))
+            .add_system(update_button_volume_text.in_set(OnUpdate(super::State::MainMenu)))
             .add_system(cleanup.in_schedule(OnExit(super::State::MainMenu)));
     }
 }
@@ -46,39 +47,31 @@ fn setup(
         .looped()
         .with_volume(0.0);
     commands
-        .spawn(NodeBundle {
+        .spawn(ImageBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                size: Size::new(Val::Auto, Val::Percent(100.0)),
+                max_size: Size::new(Val::Px(1920.0), Val::Px(1080.0)),
                 flex_direction: FlexDirection::Column,
+                justify_content: JustifyContent::Center,
+                aspect_ratio: Some(1.778),
+                ..Default::default()
+            },
+            image: UiImage {
+                texture: game_assets.titlecard.clone(),
                 ..Default::default()
             },
             ..Default::default()
         })
         .insert(MainMenuRoot)
         .with_children(|parent| {
-            parent
-                // Title wrapper
-                .spawn(NodeBundle {
-                    style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(200.0)),
-                        margin: UiRect::all(Val::Px(20.0)),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        ..Default::default()
-                    },
+            // Spacer
+            parent.spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Percent(100.0), Val::Px(300.0)),
                     ..Default::default()
-                })
-                .with_children(|parent| {
-                    parent.spawn(TextBundle::from_section(
-                        "Unnamed Tower Defense Game",
-                        TextStyle {
-                            font: game_assets.font.clone(),
-                            font_size: 60.0,
-                            color: TEXT_COLOR,
-                        },
-                    ));
-                });
-
+                },
+                ..Default::default()
+            });
             add_button(parent, "Start", MenuButton::Start, game_assets.font.clone());
             add_button(parent, "Sound", MenuButton::Sound, game_assets.font.clone());
             add_button(parent, "Music", MenuButton::Music, game_assets.font.clone());
@@ -87,7 +80,7 @@ fn setup(
 
 fn add_button(parent: &mut ChildBuilder, text: &str, button: MenuButton, font: Handle<Font>) {
     let button_style = Style {
-        size: Size::new(Val::Px(195.0), Val::Px(65.0)),
+        size: Size::new(Val::Px(210.0), Val::Px(65.0)),
         // center button
         margin: UiRect::all(Val::Px(20.0)),
         // horizontally center child text
@@ -150,6 +143,30 @@ fn button_system(
             Interaction::None => {
                 *color = BUTTON_BACKGROUND_COLOR.into();
             }
+        }
+    }
+}
+
+fn update_button_volume_text(
+    query: Query<(&MenuButton, &Children)>,
+    mut text_query: Query<&mut Text>,
+    volume_settings: Res<VolumeSettings>,
+) {
+    if !volume_settings.is_changed() {
+        return;
+    }
+    for (button, children) in query.iter() {
+        let mut text = text_query.get_mut(children[0]).unwrap();
+        match button {
+            MenuButton::Sound => {
+                text.sections[0].value =
+                    format!(" Sound: {}% ", (volume_settings.sfx_vol * 100.0).round());
+            }
+            MenuButton::Music => {
+                text.sections[0].value =
+                    format!(" Music: {}% ", (volume_settings.music_vol * 100.0).round());
+            }
+            _ => {}
         }
     }
 }

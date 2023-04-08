@@ -213,7 +213,7 @@ pub fn handle_overheat(
                 tower.overheating = false;
                 overheatable
                     .0
-                    .set_duration(Duration::from_secs_f32(rand::random::<f32>() * 60.0 + 10.0));
+                    .set_duration(Duration::from_secs_f32(rand::random::<f32>() * 60.0 + 30.0));
                 overheatable.0.reset();
                 for child in children.iter() {
                     if icons.get(*child).is_ok() {

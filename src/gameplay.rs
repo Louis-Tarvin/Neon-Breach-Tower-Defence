@@ -319,7 +319,7 @@ impl GameManager {
                     segments: vec![WaveSegment {
                         enemy_type: EnemyVariant::UltraBoss,
                         count: 5,
-                        spawn_rate: 0.5,
+                        spawn_rate: 0.3,
                     }],
                 },
             ],

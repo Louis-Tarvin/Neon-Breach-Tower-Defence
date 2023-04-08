@@ -104,7 +104,7 @@ pub fn draw_sidebar(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Px(100.0)),
+                                    size: Size::new(Val::Percent(100.0), Val::Px(120.0)),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -120,7 +120,7 @@ pub fn draw_sidebar(
                                         },
                                     ),
                                     style: Style {
-                                        max_size: Size::new(Val::Px(200.0), Val::Px(100.0)),
+                                        max_size: Size::new(Val::Px(200.0), Val::Px(120.0)),
                                         ..Default::default()
                                     },
                                     ..Default::default()

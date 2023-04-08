@@ -38,11 +38,12 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Auto),
+                        size: Size::new(Val::Auto, Val::Auto),
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
+                    background_color: CARD_BACKGROUND_COLOR.into(),
                     ..Default::default()
                 })
                 .with_children(|parent| {

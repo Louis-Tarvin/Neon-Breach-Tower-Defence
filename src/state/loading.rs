@@ -7,6 +7,8 @@ use crate::ui::constants::TEXT_COLOR;
 pub struct GameAssets {
     #[asset(path = "fonts/roboto.ttf")]
     pub font: Handle<Font>,
+    #[asset(path = "titlecard.png")]
+    pub titlecard: Handle<Image>,
     #[asset(path = "enemy1.png")]
     pub enemy1: Handle<Image>,
     #[asset(path = "enemy2.png")]
