@@ -9,6 +9,8 @@ pub enum EnemyVariant {
     Fast,
     Strong,
     Boss,
+    StrongFast,
+    UltraBoss,
 }
 impl EnemyVariant {
     pub fn points(&self) -> u32 {
@@ -18,6 +20,8 @@ impl EnemyVariant {
             Self::Fast => 4,
             Self::Strong => 10,
             Self::Boss => 20,
+            Self::StrongFast => 15,
+            Self::UltraBoss => 50,
         }
     }
 }
@@ -86,6 +90,26 @@ impl Enemy {
                 current_grid_pos: grid_pos,
                 distance_travelled: 0.0,
             },
+            EnemyVariant::StrongFast => Self {
+                variant,
+                max_health: 30.0,
+                current_health: 30.0,
+                healthbar: None,
+                move_speed: 35.0,
+                path_target: 0,
+                current_grid_pos: grid_pos,
+                distance_travelled: 0.0,
+            },
+            EnemyVariant::UltraBoss => Self {
+                variant,
+                max_health: 200.0,
+                current_health: 200.0,
+                healthbar: None,
+                move_speed: 10.0,
+                path_target: 0,
+                current_grid_pos: grid_pos,
+                distance_travelled: 0.0,
+            },
         }
     }
 }
@@ -144,7 +168,9 @@ pub fn enemy_movement(
             enemy.path_target += 1;
             if enemy.path_target >= map.path.len() {
                 // Enemy has reached the end
-                game_manager.lives -= 1;
+                if game_manager.lives > 0 {
+                    game_manager.lives -= 1;
+                }
                 map.enemies
                     .get_mut(&enemy.current_grid_pos)
                     .unwrap()

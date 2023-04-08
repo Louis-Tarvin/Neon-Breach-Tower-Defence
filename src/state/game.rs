@@ -75,9 +75,9 @@ fn setup(
     commands.insert_resource(ui::statusbar::GameSpeed(false));
     // Position the camera
     for (mut projection, mut transform) in cameras.iter_mut() {
-        projection.scale = 0.5;
-        transform.translation.x = 96.0;
-        transform.translation.y = 96.0;
+        projection.scale = 0.4;
+        transform.translation.x = 76.0;
+        transform.translation.y = 76.0;
     }
 }
 

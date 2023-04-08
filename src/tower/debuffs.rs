@@ -96,24 +96,24 @@ impl Debuff {
 }
 impl Distribution<Debuff> for Standard {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Debuff {
-        match rng.gen_range(0..=16) {
-            0 => Debuff::MoveSpeedUp((rng.gen_range(10.0..=25.0) as f32).round()),
-            1 => Debuff::ReduceNeighbourDamage((rng.gen_range(5.0..=25.0) as f32).round()),
-            2 => Debuff::ReduceNeighbourRate((rng.gen_range(5.0..=25.0) as f32).round()),
-            3 => Debuff::Immune,
-            4 => Debuff::Overheat,
-            5 => Debuff::TurretIncompatible,
-            6 => Debuff::SniperIncompatible,
-            7 => Debuff::LaserIncompatible,
-            8 => Debuff::MissileIncompatible,
-            9 => Debuff::TargetClosest,
-            10 => Debuff::TargetRandom,
-            11 => Debuff::RowOverheat,
-            12 => Debuff::ColumnOverheat,
-            13 => Debuff::ReduceRowDamage((rng.gen_range(5.0..=15.0) as f32).round()),
-            14 => Debuff::ReduceColumnDamage((rng.gen_range(5.0..=15.0) as f32).round()),
-            15 => Debuff::ReduceRowRate((rng.gen_range(5.0..=15.0) as f32).round()),
-            16 => Debuff::ReduceColumnRate((rng.gen_range(5.0..=15.0) as f32).round()),
+        match rng.gen_range(0..=29) {
+            0..=1 => Debuff::MoveSpeedUp((rng.gen_range(15.0..=45.0) as f32).round()),
+            2..=3 => Debuff::ReduceNeighbourDamage((rng.gen_range(15.0..=40.0) as f32).round()),
+            4..=5 => Debuff::ReduceNeighbourRate((rng.gen_range(10.0..=40.0) as f32).round()),
+            6..=7 => Debuff::Overheat,
+            8..=9 => Debuff::TurretIncompatible,
+            10 => Debuff::SniperIncompatible,
+            11 => Debuff::LaserIncompatible,
+            12 => Debuff::MissileIncompatible,
+            13..=14 => Debuff::TargetClosest,
+            15..=16 => Debuff::TargetRandom,
+            17..=18 => Debuff::RowOverheat,
+            19..=20 => Debuff::ColumnOverheat,
+            21..=22 => Debuff::ReduceRowDamage((rng.gen_range(10.0..=35.0) as f32).round()),
+            23..=24 => Debuff::ReduceColumnDamage((rng.gen_range(10.0..=35.0) as f32).round()),
+            25..=26 => Debuff::ReduceRowRate((rng.gen_range(10.0..=35.0) as f32).round()),
+            27..=28 => Debuff::ReduceColumnRate((rng.gen_range(10.0..=35.0) as f32).round()),
+            29 => Debuff::Immune,
             _ => unreachable!(),
         }
     }

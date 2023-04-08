@@ -239,7 +239,7 @@ pub fn update_status_bar_text(
     if let Ok(mut text) = query.get_single_mut() {
         match game_manager.wave_state {
             WaveState::Spawning(_) | WaveState::Finished => {
-                text.sections[0].value = format!("Wave {}", game_manager.current_wave);
+                text.sections[0].value = format!("Wave: {}", game_manager.current_wave);
             }
             WaveState::Waiting => match ui_state.state {
                 UiState::Normal => {

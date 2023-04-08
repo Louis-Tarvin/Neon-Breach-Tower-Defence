@@ -8,7 +8,7 @@ use crate::{
     enemies::{Enemy, EnemyVariant},
     grid::Map,
     state::{loading::GameAssets, State},
-    tower::Tower,
+    tower::{debuffs::Debuff, Tower, TowerType},
     ui::{tower_options::present_tower_options, UiState, UiStateResource},
 };
 
@@ -62,17 +62,24 @@ impl GameManager {
                         },
                         WaveSegment {
                             enemy_type: EnemyVariant::Normal,
-                            count: 5,
+                            count: 3,
                             spawn_rate: 0.5,
                         },
                     ],
                 },
                 Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::Normal,
+                        count: 10,
+                        spawn_rate: 0.75,
+                    }],
+                },
+                Wave {
                     segments: vec![
                         WaveSegment {
                             enemy_type: EnemyVariant::Normal,
-                            count: 10,
-                            spawn_rate: 0.75,
+                            count: 8,
+                            spawn_rate: 1.0,
                         },
                         WaveSegment {
                             enemy_type: EnemyVariant::Fast,
@@ -101,11 +108,18 @@ impl GameManager {
                     ],
                 },
                 Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::Fast,
+                        count: 15,
+                        spawn_rate: 0.8,
+                    }],
+                },
+                Wave {
                     segments: vec![
                         WaveSegment {
-                            enemy_type: EnemyVariant::Fast,
-                            count: 10,
-                            spawn_rate: 1.0,
+                            enemy_type: EnemyVariant::Normal,
+                            count: 15,
+                            spawn_rate: 1.2,
                         },
                         WaveSegment {
                             enemy_type: EnemyVariant::Strong,
@@ -130,12 +144,142 @@ impl GameManager {
                 },
                 Wave {
                     segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::Strong,
+                        count: 8,
+                        spawn_rate: 0.4,
+                    }],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Strong,
+                            count: 1,
+                            spawn_rate: 1.0,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Fast,
+                            count: 5,
+                            spawn_rate: 1.5,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Strong,
+                            count: 1,
+                            spawn_rate: 1.0,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Fast,
+                            count: 5,
+                            spawn_rate: 1.5,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![WaveSegment {
                         enemy_type: EnemyVariant::Boss,
                         count: 1,
                         spawn_rate: 0.7,
                     }],
                 },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Normal,
+                            count: 5,
+                            spawn_rate: 0.7,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Strong,
+                            count: 5,
+                            spawn_rate: 0.2,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Normal,
+                            count: 10,
+                            spawn_rate: 1.5,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Boss,
+                            count: 3,
+                            spawn_rate: 0.2,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Fast,
+                            count: 20,
+                            spawn_rate: 2.5,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::StrongFast,
+                            count: 1,
+                            spawn_rate: 0.5,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::StrongFast,
+                            count: 7,
+                            spawn_rate: 1.5,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Boss,
+                            count: 3,
+                            spawn_rate: 0.2,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::StrongFast,
+                            count: 15,
+                            spawn_rate: 1.5,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Boss,
+                            count: 5,
+                            spawn_rate: 0.2,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::Boss,
+                        count: 10,
+                        spawn_rate: 0.4,
+                    }],
+                },
+                Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::StrongFast,
+                        count: 15,
+                        spawn_rate: 2.5,
+                    }],
+                },
+                Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::Normal,
+                        count: 10,
+                        spawn_rate: 1.0,
+                    }],
+                },
+                Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::UltraBoss,
+                        count: 1,
+                        spawn_rate: 1.5,
+                    }],
+                },
             ],
+
             wave_state: WaveState::Waiting,
             spawn_timer: Timer::from_seconds(0.1, TimerMode::Once),
             lives: 10,
@@ -167,7 +311,6 @@ pub fn gameloop(
                             map.start_pos.0 as f32,
                             map.start_pos.1 as f32,
                         ));
-                        println!("Spawning enemy of type {:?}", segment.enemy_type);
                         commands
                             .spawn(SpriteBundle {
                                 texture: match segment.enemy_type {
@@ -176,6 +319,8 @@ pub fn gameloop(
                                     EnemyVariant::Fast => game_assets.enemy3.clone(),
                                     EnemyVariant::Strong => game_assets.enemy4.clone(),
                                     EnemyVariant::Boss => game_assets.enemy5.clone(),
+                                    EnemyVariant::StrongFast => game_assets.enemy6.clone(),
+                                    EnemyVariant::UltraBoss => game_assets.enemy7.clone(),
                                 },
                                 transform: Transform::from_translation(Vec3::new(
                                     spawn_pos.x,
@@ -204,13 +349,34 @@ pub fn gameloop(
         }
         WaveState::Finished => {
             if enemies.iter().count() == 0 {
-                println!("Wave {} finished", game_manager.current_wave);
                 drums_channel.set_volume(0.0);
                 game_manager.current_wave += 1;
                 game_manager.wave_state = WaveState::Waiting;
                 let mut options = Vec::new();
-                for _ in 0..3 {
-                    options.push(Tower::new_random());
+                if game_manager.current_wave == 1 {
+                    // Fix the first set of tower options
+                    options.push(Tower::new(
+                        0.5,
+                        1.8,
+                        TowerType::ChargeShot,
+                        Debuff::LaserIncompatible,
+                    ));
+                    options.push(Tower::new(
+                        0.17,
+                        4.0,
+                        TowerType::Laser,
+                        Debuff::ReduceColumnDamage(10.0),
+                    ));
+                    options.push(Tower::new(
+                        3.0,
+                        0.3,
+                        TowerType::Sniper,
+                        Debuff::ReduceNeighbourRate(15.0),
+                    ));
+                } else {
+                    for _ in 0..3 {
+                        options.push(Tower::new_random());
+                    }
                 }
                 present_tower_options(commands, game_assets.font.clone(), &options);
                 ui_state.state = UiState::PickingTower(options);

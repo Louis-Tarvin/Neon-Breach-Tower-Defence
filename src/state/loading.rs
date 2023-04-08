@@ -17,6 +17,10 @@ pub struct GameAssets {
     pub enemy4: Handle<Image>,
     #[asset(path = "enemy5.png")]
     pub enemy5: Handle<Image>,
+    #[asset(path = "enemy6.png")]
+    pub enemy6: Handle<Image>,
+    #[asset(path = "enemy7.png")]
+    pub enemy7: Handle<Image>,
     #[asset(path = "tiles/tile_select.png")]
     pub tile_select: Handle<Image>,
     #[asset(path = "tiles/empty.png")]
@@ -50,10 +54,14 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Camera2dBundle {
             camera: Camera {
-                hdr: true,
+                hdr: !cfg!(target_arch = "wasm32"),
                 ..Default::default()
             },
-            tonemapping: bevy::core_pipeline::tonemapping::Tonemapping::TonyMcMapface,
+            tonemapping: if cfg!(target_arch = "wasm32") {
+                bevy::core_pipeline::tonemapping::Tonemapping::default()
+            } else {
+                bevy::core_pipeline::tonemapping::Tonemapping::TonyMcMapface
+            },
             ..Default::default()
         },
         BloomSettings::default(),

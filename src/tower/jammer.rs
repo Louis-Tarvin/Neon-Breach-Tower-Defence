@@ -33,7 +33,7 @@ pub fn spawn_jammer(
             parent
                 .spawn(MaterialMesh2dBundle {
                     mesh: meshes.add(shape::Circle::new(1.5 * 32.0).into()).into(),
-                    material: materials.add(ColorMaterial::from(Color::rgba(1.0, 0.0, 0.0, 0.2))),
+                    material: materials.add(ColorMaterial::from(Color::rgba(0.8, 0.4, 0.4, 0.2))),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
                     visibility: Visibility::Hidden,
                     ..Default::default()
