@@ -39,6 +39,8 @@ pub struct GameManager {
     pub spawn_timer: Timer,
     pub lives: u16,
     pub score: u32,
+    pub health_multiplier: f32,
+    pub speed_multiplier: f32,
 }
 impl GameManager {
     pub fn new() -> Self {
@@ -278,12 +280,56 @@ impl GameManager {
                         spawn_rate: 1.5,
                     }],
                 },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Boss,
+                            count: 5,
+                            spawn_rate: 0.5,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::StrongFast,
+                            count: 10,
+                            spawn_rate: 1.2,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::Strong,
+                        count: 20,
+                        spawn_rate: 2.5,
+                    }],
+                },
+                Wave {
+                    segments: vec![
+                        WaveSegment {
+                            enemy_type: EnemyVariant::Boss,
+                            count: 5,
+                            spawn_rate: 0.5,
+                        },
+                        WaveSegment {
+                            enemy_type: EnemyVariant::UltraBoss,
+                            count: 2,
+                            spawn_rate: 0.2,
+                        },
+                    ],
+                },
+                Wave {
+                    segments: vec![WaveSegment {
+                        enemy_type: EnemyVariant::UltraBoss,
+                        count: 5,
+                        spawn_rate: 0.5,
+                    }],
+                },
             ],
 
             wave_state: WaveState::Waiting,
             spawn_timer: Timer::from_seconds(0.1, TimerMode::Once),
-            lives: 10,
+            lives: 15,
             score: 0,
+            health_multiplier: 1.0,
+            speed_multiplier: 1.0,
         }
     }
 }
@@ -303,7 +349,13 @@ pub fn gameloop(
             game_manager.spawn_timer.tick(time.delta());
             if game_manager.spawn_timer.finished() {
                 let mut finished = true;
-                let wave = &game_manager.waves[game_manager.current_wave];
+                let wave_index = if game_manager.current_wave < game_manager.waves.len() {
+                    game_manager.current_wave
+                } else {
+                    // if we've run out of waves, alternate between the last 4
+                    (game_manager.current_wave % 4) + game_manager.waves.len() - 4
+                };
+                let wave = &game_manager.waves[wave_index];
                 let mut count = 0;
                 for segment in wave.segments.iter() {
                     if count + segment.count > num.into() {
@@ -329,7 +381,12 @@ pub fn gameloop(
                                 )),
                                 ..Default::default()
                             })
-                            .insert(Enemy::new(segment.enemy_type, map.start_pos));
+                            .insert(Enemy::new(
+                                segment.enemy_type,
+                                map.start_pos,
+                                game_manager.health_multiplier,
+                                game_manager.speed_multiplier,
+                            ));
                         let cooldown = 1.0 / segment.spawn_rate;
                         game_manager
                             .spawn_timer
@@ -392,12 +449,15 @@ pub fn start_next_wave(
     drums_channel: Res<AudioChannel<DrumsChannel>>,
     volume_settings: Res<VolumeSettings>,
 ) {
-    if (input.just_pressed(KeyCode::Space) && game_manager.current_wave < game_manager.waves.len())
-        || game_manager.current_wave == 0
-    {
+    if (input.just_pressed(KeyCode::Space)) || game_manager.current_wave == 0 {
         if let WaveState::Waiting = game_manager.wave_state {
             drums_channel.set_volume(volume_settings.music_vol);
             game_manager.wave_state = WaveState::Spawning(0);
+            if game_manager.current_wave >= game_manager.waves.len() {
+                // If we're in endless mode, gradually increase the difficulty
+                game_manager.health_multiplier += 0.1;
+                game_manager.speed_multiplier += 0.1;
+            }
         }
     }
 }
