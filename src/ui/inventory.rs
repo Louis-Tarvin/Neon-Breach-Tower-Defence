@@ -1,6 +1,11 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use crate::{state::loading::GameAssets, tower::Tower};
+use crate::{
+    audio::{AudioAssets, SoundChannel},
+    state::loading::GameAssets,
+    tower::Tower,
+};
 
 use super::{constants::*, tower_options::TowerOption, UiState, UiStateResource};
 
@@ -186,26 +191,37 @@ pub fn draw_tower_card(
 pub fn handle_inventory_buttons(
     mut ui_state: ResMut<UiStateResource>,
     mut query: Query<(&InventoryTower, &Interaction, &mut BackgroundColor), Changed<Interaction>>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     if let UiState::PickingTower(_) = ui_state.state {
         return;
     }
     for (inventory_tower, interaction, mut background_color) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => match ui_state.state {
-                UiState::PlacingTower(i) => {
-                    if i == inventory_tower.index {
-                        ui_state.state = UiState::Normal;
-                    } else {
+            Interaction::Clicked => {
+                sound_channel.play(audio_assets.blip2.clone());
+                match ui_state.state {
+                    UiState::PlacingTower(i) => {
+                        if i == inventory_tower.index {
+                            ui_state.state = UiState::Normal;
+                        } else {
+                            ui_state.state = UiState::PlacingTower(inventory_tower.index);
+                        }
+                    }
+                    _ => {
                         ui_state.state = UiState::PlacingTower(inventory_tower.index);
                     }
                 }
-                _ => {
-                    ui_state.state = UiState::PlacingTower(inventory_tower.index);
-                }
-            },
+            }
             Interaction::Hovered => {
                 background_color.0 = CARD_BACKGROUND_COLOR_HOVER;
+                match ui_state.state {
+                    UiState::PlacingTower(_) => {}
+                    _ => {
+                        sound_channel.play(audio_assets.blip1.clone());
+                    }
+                }
             }
             Interaction::None => {
                 if let UiState::PlacingTower(i) = ui_state.state {

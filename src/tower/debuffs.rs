@@ -1,9 +1,11 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 use rand::{distributions::Standard, prelude::Distribution, Rng};
 
 use crate::{
+    audio::{AudioAssets, SoundChannel},
     gameplay::{GameManager, WaveState},
     grid::Map,
     state::loading::GameAssets,
@@ -198,6 +200,8 @@ pub fn handle_overheat(
     game_assets: Res<GameAssets>,
     game_manager: Res<GameManager>,
     time: Res<Time>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     if let WaveState::Waiting = game_manager.wave_state {
         return;
@@ -216,6 +220,7 @@ pub fn handle_overheat(
                         commands.entity(*child).despawn_recursive();
                     }
                 }
+                sound_channel.play(audio_assets.overheat_end.clone());
             } else {
                 tower.overheating = true;
                 overheatable.0.set_duration(Duration::from_secs_f32(8.0));
@@ -229,6 +234,7 @@ pub fn handle_overheat(
                         })
                         .insert(OverheatIcon);
                 });
+                sound_channel.play(audio_assets.overheat_start.clone());
             }
         }
     }

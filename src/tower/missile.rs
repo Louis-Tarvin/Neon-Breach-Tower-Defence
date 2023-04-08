@@ -1,8 +1,15 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets};
+use crate::{
+    audio::{AudioAssets, SoundChannel},
+    enemies::Enemy,
+    gameplay::{GameManager, WaveState},
+    grid::Map,
+    state::loading::GameAssets,
+};
 
 use super::{Tower, TowerPlaced};
 
@@ -51,6 +58,9 @@ pub fn spawn_missile(
     mut query: Query<(&mut Silo, &Tower, &Transform)>,
     game_assets: Res<GameAssets>,
     time: Res<Time>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
+    game_manager: Res<GameManager>,
 ) {
     for (mut silo, tower, transform) in query.iter_mut() {
         silo.timer.tick(time.delta());
@@ -60,6 +70,9 @@ pub fn spawn_missile(
             silo.timer.reset();
             if tower.overheating {
                 continue; // Don't shoot if overheating
+            }
+            if let WaveState::Waiting = game_manager.wave_state {
+                continue; // Don't shoot if waiting for next wave
             }
             let grid_pos = Map::get_grid_pos(transform.translation.truncate());
             commands
@@ -78,6 +91,7 @@ pub fn spawn_missile(
                     speed: 100.0,
                     rotation_speed: 4.0,
                 });
+            sound_channel.play(audio_assets.missile_shoot.clone());
         }
     }
 }
@@ -87,6 +101,8 @@ pub fn handle_missile(
     mut query: Query<(Entity, &mut Missile, &mut Transform), Without<Enemy>>,
     mut enemies: Query<(Entity, &mut Enemy, &Transform), Without<Missile>>,
     time: Res<Time>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     fn find_next_target(
         enemies: &mut Query<(Entity, &mut Enemy, &Transform), Without<Missile>>,
@@ -120,6 +136,7 @@ pub fn handle_missile(
                 if distance < 15.0 {
                     enemy.current_health -= missile.damage;
                     commands.entity(entity).despawn();
+                    sound_channel.play(audio_assets.explosion.clone());
                 }
             } else {
                 let strongest_enemy = find_next_target(&mut enemies);

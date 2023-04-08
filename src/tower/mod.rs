@@ -1,7 +1,13 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 use rand::{distributions::Standard, prelude::Distribution, Rng};
 
-use crate::{enemies::Enemy, grid::Map, ui::UiData};
+use crate::{
+    audio::{AudioAssets, SoundChannel},
+    enemies::Enemy,
+    grid::Map,
+    ui::UiData,
+};
 
 use self::debuffs::{AddDebuff, Debuff};
 
@@ -155,8 +161,11 @@ pub fn handle_tower_placement(
     mut ui_data: ResMut<UiData>,
     query: Query<&Tower>,
     map: Res<Map>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for event in events.iter() {
+        sound_channel.play(audio_assets.place.clone());
         let tower = query
             .get(
                 *map.placements

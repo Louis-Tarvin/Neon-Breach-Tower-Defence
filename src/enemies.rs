@@ -1,6 +1,13 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use crate::{gameplay::GameManager, grid::Map, tower::debuffs::SpeedUpPoint, ui::constants::GREEN};
+use crate::{
+    audio::{AudioAssets, SoundChannel},
+    gameplay::GameManager,
+    grid::Map,
+    tower::debuffs::SpeedUpPoint,
+    ui::constants::GREEN,
+};
 
 #[derive(Debug, Clone, Copy)]
 pub enum EnemyVariant {
@@ -150,6 +157,8 @@ pub fn enemy_movement(
     speed_up_points: Query<(&SpeedUpPoint, &Transform), Without<Enemy>>,
     mut game_manager: ResMut<GameManager>,
     time: Res<Time>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for (mut enemy, mut transform, entity) in enemies.iter_mut() {
         let mut distance_to_travel = enemy.move_speed * time.delta_seconds();
@@ -181,6 +190,7 @@ pub fn enemy_movement(
                     .unwrap()
                     .retain(|e| *e != entity);
                 commands.entity(entity).despawn_recursive();
+                sound_channel.play(audio_assets.end.clone());
             }
         } else if next_pos.x == current_pos.x {
             if next_pos.y > current_pos.y {
@@ -258,6 +268,8 @@ pub fn check_killed(
     enemies: Query<(Entity, &Enemy)>,
     mut map: ResMut<Map>,
     mut game_manager: ResMut<GameManager>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for (entity, enemy) in enemies.iter() {
         if enemy.current_health <= 0.0 {
@@ -266,6 +278,7 @@ pub fn check_killed(
             }
             commands.entity(entity).despawn_recursive();
             game_manager.score += enemy.variant.points();
+            sound_channel.play(audio_assets.kill.clone());
         }
     }
 }

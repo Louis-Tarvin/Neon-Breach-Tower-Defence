@@ -1,9 +1,16 @@
 use std::time::Duration;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy_kira_audio::{AudioChannel, AudioControl};
 use rand::seq::SliceRandom;
 
-use crate::{enemies::Enemy, grid::Map, state::loading::GameAssets, ui::constants::BLUE};
+use crate::{
+    audio::{AudioAssets, SoundChannel},
+    enemies::Enemy,
+    grid::Map,
+    state::loading::GameAssets,
+    ui::constants::BLUE,
+};
 
 use super::{Projectile, RangeIndicator, RotatingTurret, TargetMode, Tower, TowerPlaced};
 
@@ -32,6 +39,8 @@ pub fn shoot(
     map: Res<Map>,
     time: Res<Time>,
     game_assets: Res<GameAssets>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for (tower, mut charge_shot, transform, children) in query.iter_mut() {
         charge_shot.timer.tick(time.delta());
@@ -156,6 +165,7 @@ pub fn shoot(
                             );
                         }
                     }
+                    sound_channel.play(audio_assets.turret_shoot.clone());
                 }
             }
         }

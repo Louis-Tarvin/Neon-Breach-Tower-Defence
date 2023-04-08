@@ -1,6 +1,10 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{AudioChannel, AudioControl};
 
-use crate::tower::Tower;
+use crate::{
+    audio::{AudioAssets, SoundChannel},
+    tower::Tower,
+};
 
 use super::{
     constants::*,
@@ -79,10 +83,13 @@ pub fn handle_tower_options(
     mut query: Query<(&TowerOption, &Interaction, &mut BackgroundColor), Changed<Interaction>>,
     root: Query<Entity, With<TowerOptionsRoot>>,
     mut inventory: ResMut<Inventory>,
+    sound_channel: Res<AudioChannel<SoundChannel>>,
+    audio_assets: Res<AudioAssets>,
 ) {
     for (tower_option, interaction, mut background_color) in query.iter_mut() {
         match interaction {
             Interaction::Clicked => {
+                sound_channel.play(audio_assets.blip2.clone());
                 if let UiState::PickingTower(ref mut options) = ui_state.state {
                     let tower = options.remove(tower_option.index);
                     inventory.towers.push(tower);
@@ -94,6 +101,7 @@ pub fn handle_tower_options(
             }
             Interaction::Hovered => {
                 background_color.0 = CARD_BACKGROUND_COLOR_HOVER;
+                sound_channel.play(audio_assets.blip1.clone());
             }
             Interaction::None => {
                 if let UiState::PlacingTower(i) = ui_state.state {
