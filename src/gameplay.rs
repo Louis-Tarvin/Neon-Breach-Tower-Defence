@@ -7,7 +7,7 @@ use crate::{
     audio::{DrumsChannel, VolumeSettings},
     enemies::{Enemy, EnemyVariant},
     grid::Map,
-    state::{loading::GameAssets, State},
+    state::{loading::GameAssets, results::Scores, State},
     tower::{debuffs::Debuff, Tower, TowerType},
     ui::{tower_options::present_tower_options, UiState, UiStateResource},
 };
@@ -451,7 +451,7 @@ pub fn start_next_wave(
 ) {
     if (input.just_pressed(KeyCode::Space)) || game_manager.current_wave == 0 {
         if let WaveState::Waiting = game_manager.wave_state {
-            drums_channel.set_volume(volume_settings.music_vol);
+            drums_channel.set_volume(volume_settings.music_vol * 1.5);
             game_manager.wave_state = WaveState::Spawning(0);
             if game_manager.current_wave >= game_manager.waves.len() {
                 // If we're in endless mode, gradually increase the difficulty
@@ -462,8 +462,17 @@ pub fn start_next_wave(
     }
 }
 
-pub fn game_over_check(game_manager: Res<GameManager>, mut next_state: ResMut<NextState<State>>) {
+pub fn game_over_check(
+    game_manager: Res<GameManager>,
+    mut next_state: ResMut<NextState<State>>,
+    mut scores: ResMut<Scores>,
+) {
     if game_manager.lives == 0 {
-        next_state.set(State::MainMenu);
+        scores.last_score = game_manager.score;
+        scores.last_wave = game_manager.current_wave as u32;
+        if game_manager.score > scores.high_score {
+            scores.high_score = game_manager.score;
+        }
+        next_state.set(State::Results);
     }
 }

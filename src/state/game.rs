@@ -1,8 +1,6 @@
 use bevy::prelude::*;
-use bevy_kira_audio::{AudioChannel, AudioControl};
 
 use crate::{
-    audio::{DrumsChannel, MusicChannel},
     enemies, gameplay, grid, input,
     tower::{self, debuffs::SpeedUpPoint},
     ui::{self, inventory, sidebar, statusbar, tower_options},
@@ -87,8 +85,6 @@ fn cleanup(
     mut sprites: Query<Entity, With<Sprite>>,
     mut nodes: Query<Entity, With<Node>>,
     mut speed_up_points: Query<Entity, With<SpeedUpPoint>>,
-    music_channel: Res<AudioChannel<MusicChannel>>,
-    drums_channel: Res<AudioChannel<DrumsChannel>>,
 ) {
     for entity in sprites
         .iter_mut()
@@ -97,7 +93,4 @@ fn cleanup(
     {
         commands.entity(entity).despawn_recursive();
     }
-
-    music_channel.stop();
-    drums_channel.stop();
 }

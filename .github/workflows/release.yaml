@@ -7,7 +7,7 @@ on:
 
 env:
   # update with the name of the main binary
-  binary: bevy_github_ci_template
+  binary: NeonBreach
   add_binaries_to_github_release: true
   #itch_target: <itch.io-username>/<game-name>
 
@@ -30,6 +30,9 @@ jobs:
           cargo install wasm-bindgen-cli
 
       - name: Build
+        env:
+          JORNET_ID: ${{ secrets.JORNET_ID }}
+          JORNET_KEY: ${{ secrets.JORNET_KEY }}
         run: |
           cargo build --release --target wasm32-unknown-unknown
 
@@ -75,6 +78,9 @@ jobs:
           sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev
 
       - name: Build
+        env:
+          JORNET_ID: ${{ secrets.JORNET_ID }}
+          JORNET_KEY: ${{ secrets.JORNET_KEY }}
         run: |
           cargo build --release --target x86_64-unknown-linux-gnu
 
@@ -118,6 +124,9 @@ jobs:
           targets: x86_64-pc-windows-msvc
 
       - name: Build
+        env:
+          JORNET_ID: ${{ secrets.JORNET_ID }}
+          JORNET_KEY: ${{ secrets.JORNET_KEY }}
         run: |
           cargo build --release --target x86_64-pc-windows-msvc
 
@@ -164,6 +173,9 @@ jobs:
           export MACOSX_DEPLOYMENT_TARGET="10.9"
 
       - name: Build
+        env:
+          JORNET_ID: ${{ secrets.JORNET_ID }}
+          JORNET_KEY: ${{ secrets.JORNET_KEY }}
         run: |
           cargo build --release --target x86_64-apple-darwin
 

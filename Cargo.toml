@@ -1,5 +1,5 @@
 [package]
-name = "bevy_jam_3"
+name = "neon_breach"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
@@ -20,8 +20,9 @@ default = ["bevy/animation", "bevy/bevy_asset", "bevy/bevy_scene", "bevy/bevy_wi
 
 
 [dependencies]
-bevy = { version = "0.10", default-features = false }
+bevy = { version = "0.10.1", default-features = false }
 bevy_asset_loader = "0.15.0"
 bevy_kira_audio = { version = "0.15", default-features = false, features = ["wav", "ogg"] }
 bevy-inspector-egui = "0.18.1"
 rand = "0.8.5"
+bevy_jornet = "0.4.0"

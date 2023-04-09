@@ -5,7 +5,9 @@ use bevy::prelude::*;
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 use bevy_kira_audio::{AudioApp, AudioPlugin};
 use debug::DebugPlugin;
-use state::{game::GamePlugin, loading::GameAssets, main_menu::MainMenuPlugin};
+use state::{
+    game::GamePlugin, loading::GameAssets, main_menu::MainMenuPlugin, results::ResultsPlugin,
+};
 use ui::constants::BACKGROUND_COLOR;
 
 mod audio;
@@ -31,6 +33,8 @@ fn main() {
         .add_plugin(MainMenuPlugin)
         .add_plugin(GamePlugin)
         .add_plugin(DebugPlugin)
+        .add_plugin(ResultsPlugin)
+        .add_startup_system(state::results::create_player)
         .add_system(state::loading::setup.in_schedule(OnEnter(state::State::Loading)))
         .add_system(state::loading::cleanup.in_schedule(OnExit(state::State::Loading)))
         .add_audio_channel::<MusicChannel>()
