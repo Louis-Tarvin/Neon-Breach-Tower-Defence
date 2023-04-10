@@ -242,7 +242,7 @@ impl GameManager {
                     segments: vec![
                         WaveSegment {
                             enemy_type: EnemyVariant::StrongFast,
-                            count: 15,
+                            count: 12,
                             spawn_rate: 1.5,
                         },
                         WaveSegment {

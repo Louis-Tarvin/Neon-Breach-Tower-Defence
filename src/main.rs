@@ -4,14 +4,12 @@ use audio::{AudioAssets, DrumsChannel, MusicChannel, SoundChannel};
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 use bevy_kira_audio::{AudioApp, AudioPlugin};
-use debug::DebugPlugin;
 use state::{
     game::GamePlugin, loading::GameAssets, main_menu::MainMenuPlugin, results::ResultsPlugin,
 };
 use ui::constants::BACKGROUND_COLOR;
 
 mod audio;
-mod debug;
 mod enemies;
 mod gameplay;
 mod grid;
@@ -32,7 +30,6 @@ fn main() {
         .add_collection_to_loading_state::<_, AudioAssets>(state::State::Loading)
         .add_plugin(MainMenuPlugin)
         .add_plugin(GamePlugin)
-        .add_plugin(DebugPlugin)
         .add_plugin(ResultsPlugin)
         .add_startup_system(state::results::create_player)
         .add_system(state::loading::setup.in_schedule(OnEnter(state::State::Loading)))

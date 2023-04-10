@@ -4,7 +4,7 @@ use bevy_kira_audio::{AudioChannel, AudioControl};
 use crate::{
     audio::{AudioAssets, SoundChannel},
     state::loading::GameAssets,
-    tower::Tower,
+    tower::{Tower, TowerType},
 };
 
 use super::{constants::*, tower_options::TowerOption, UiState, UiStateResource};
@@ -20,12 +20,6 @@ pub struct InventoryRoot;
 #[derive(Component)]
 pub struct InventoryTower {
     pub index: usize,
-}
-
-pub fn give_random_tower(mut inventory: ResMut<Inventory>, input: Res<Input<KeyCode>>) {
-    if input.just_pressed(KeyCode::Return) {
-        inventory.towers.push(Tower::new_random());
-    }
 }
 
 pub fn draw_inventory(
@@ -232,6 +226,69 @@ pub fn handle_inventory_buttons(
                     }
                 } else {
                     background_color.0 = CARD_BACKGROUND_COLOR;
+                }
+            }
+        }
+    }
+}
+
+#[derive(Component)]
+pub struct Ghost;
+
+pub fn create_ghost(
+    mut commands: Commands,
+    query: Query<Entity, With<Ghost>>,
+    ui_state: Res<UiStateResource>,
+    inventory: Res<Inventory>,
+    game_assets: Res<GameAssets>,
+) {
+    if !ui_state.is_changed() {
+        return;
+    }
+    for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+    if let UiState::PlacingTower(i) = ui_state.state {
+        if let Some(tower) = inventory.towers.get(i) {
+            for entity in query.iter() {
+                commands.entity(entity).despawn_recursive();
+            }
+            commands
+                .spawn(SpriteBundle {
+                    texture: match tower.variant {
+                        TowerType::ChargeShot => game_assets.pivot.clone(),
+                        TowerType::Laser => game_assets.laser.clone(),
+                        TowerType::Missile => game_assets.silo.clone(),
+                        TowerType::Sniper => game_assets.pivot.clone(),
+                        TowerType::Jammer => game_assets.pivot.clone(),
+                    },
+                    transform: Transform::from_xyz(0.0, 0.0, -1.0),
+                    sprite: Sprite {
+                        color: Color::rgba(1.0, 1.0, 1.0, 0.5),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .insert(Ghost);
+        }
+    }
+}
+
+pub fn handle_ghost(
+    mut query: Query<&mut Transform, With<Ghost>>,
+    windows: Query<&Window>,
+    camera: Query<(&Camera, &GlobalTransform)>,
+) {
+    for mut transform in query.iter_mut() {
+        if let Ok(window) = windows.get_single() {
+            let (camera, camera_transform) = camera.get_single().unwrap();
+            if let Some(mouse_position) = window.cursor_position() {
+                if let Some(world_position) =
+                    camera.viewport_to_world(camera_transform, mouse_position)
+                {
+                    let x = (world_position.origin.x / 32.0).round() * 32.0;
+                    let y = (world_position.origin.y / 32.0).round() * 32.0;
+                    transform.translation = Vec3::new(x, y, 6.0);
                 }
             }
         }

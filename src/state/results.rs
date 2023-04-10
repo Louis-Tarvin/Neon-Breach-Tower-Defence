@@ -44,7 +44,6 @@ fn save_score(mut commands: Commands, leaderboard: Res<Leaderboard>, scores: Res
         scores.last_score as f32,
         &format!("Wave {}", scores.last_wave),
     );
-    println!("Sent score");
     leaderboard.refresh_leaderboard();
     commands.insert_resource(RefreshTimer(Timer::from_seconds(3.0, TimerMode::Once)));
 }
@@ -85,7 +84,7 @@ fn draw_leaderboard(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(100.0)),
+                        size: Size::new(Val::Percent(100.0), Val::Px(70.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
@@ -126,7 +125,7 @@ fn draw_leaderboard(
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.0), Val::Px(100.0)),
+                                        size: Size::new(Val::Percent(100.0), Val::Px(70.0)),
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
                                         ..Default::default()
@@ -158,7 +157,7 @@ fn draw_leaderboard(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(100.0)),
+                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
@@ -186,7 +185,7 @@ fn draw_leaderboard(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(100.0)),
+                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
@@ -241,7 +240,7 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
     parent
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                size: Size::new(Val::Percent(100.0), Val::Px(40.0)),
                 ..Default::default()
             },
             ..Default::default()
@@ -250,7 +249,7 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(33.3), Val::Px(50.0)),
+                        size: Size::new(Val::Percent(33.3), Val::Px(40.0)),
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
@@ -262,7 +261,7 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
                             score.player,
                             TextStyle {
                                 font: font.clone(),
-                                font_size: 30.0,
+                                font_size: 25.0,
                                 color: TEXT_COLOR,
                             },
                         ),
@@ -272,7 +271,7 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(33.3), Val::Px(50.0)),
+                        size: Size::new(Val::Percent(33.3), Val::Px(40.0)),
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
@@ -284,7 +283,7 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
                             format!("{}", score.score),
                             TextStyle {
                                 font: font.clone(),
-                                font_size: 30.0,
+                                font_size: 25.0,
                                 color: TEXT_COLOR,
                             },
                         ),
@@ -294,7 +293,7 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(33.3), Val::Px(50.0)),
+                        size: Size::new(Val::Percent(33.3), Val::Px(40.0)),
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
@@ -306,7 +305,7 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
                             score.meta.unwrap_or("".to_string()),
                             TextStyle {
                                 font: font.clone(),
-                                font_size: 30.0,
+                                font_size: 25.0,
                                 color: TEXT_COLOR,
                             },
                         ),
