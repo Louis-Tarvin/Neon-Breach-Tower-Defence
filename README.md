@@ -8,6 +8,8 @@ A game made in 9 days for [Bevy Jam #3](https://itch.io/jam/bevy-jam-3). The the
 
 A 2D tower defence game where each tower has a side effect.
 
+You can play it in your browser on itch.io [here](https://louisnivrat.itch.io/neon-breach-tower-defence).
+
 ---
 
 ### License
