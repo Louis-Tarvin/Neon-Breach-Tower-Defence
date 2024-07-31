@@ -150,7 +150,7 @@ impl Tower {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub struct TowerPlaced {
     pub grid_pos: (i8, i8),
 }

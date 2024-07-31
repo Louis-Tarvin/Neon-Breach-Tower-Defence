@@ -25,13 +25,11 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                width: Val::Percent(100.0),
+                height: Val::Px(50.0),
                 position_type: PositionType::Absolute,
-                position: UiRect {
-                    left: Val::Px(0.0),
-                    top: Val::Px(0.0),
-                    ..Default::default()
-                },
+                left: Val::Px(0.0),
+                top: Val::Px(0.0),
                 align_items: AlignItems::Center,
                 ..Default::default()
             },
@@ -42,7 +40,8 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Auto, Val::Px(50.0)),
+                        width: Val::Auto,
+                        height: Val::Px(50.0),
                         align_items: AlignItems::Center,
                         padding: UiRect::all(Val::Px(10.0)),
                         ..Default::default()
@@ -53,7 +52,8 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
                     parent
                         .spawn(ButtonBundle {
                             style: Style {
-                                size: Size::new(Val::Px(50.0), Val::Px(50.0)),
+                                width: Val::Px(50.0),
+                                height: Val::Px(50.0),
                                 align_items: AlignItems::Center,
                                 justify_content: JustifyContent::Center,
                                 padding: UiRect::all(Val::Px(10.0)),
@@ -78,7 +78,8 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
                     parent
                         .spawn(ButtonBundle {
                             style: Style {
-                                size: Size::new(Val::Px(50.0), Val::Px(50.0)),
+                                width: Val::Px(50.0),
+                                height: Val::Px(50.0),
                                 align_items: AlignItems::Center,
                                 justify_content: JustifyContent::Center,
                                 padding: UiRect::all(Val::Px(10.0)),
@@ -104,7 +105,8 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Auto, Val::Px(50.0)),
+                        width: Val::Auto,
+                        height: Val::Px(50.0),
                         align_items: AlignItems::Center,
                         padding: UiRect::all(Val::Px(10.0)),
                         ..Default::default()
@@ -129,7 +131,8 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Auto, Val::Px(50.0)),
+                        width: Val::Auto,
+                        height: Val::Px(50.0),
                         align_items: AlignItems::Center,
                         padding: UiRect::all(Val::Px(10.0)),
                         ..Default::default()
@@ -154,7 +157,8 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                        width: Val::Percent(100.0),
+                        height: Val::Px(50.0),
                         align_items: AlignItems::Center,
                         padding: UiRect::all(Val::Px(10.0)),
                         ..Default::default()
@@ -186,7 +190,7 @@ pub fn handle_normal_speed_button(
 ) {
     for (interaction, mut background_color) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 game_speed.0 = false;
                 time.set_relative_speed(1.0);
                 background_color.0 = BUTTON_BACKGROUND_COLOR_ACTIVE;
@@ -212,7 +216,7 @@ pub fn handle_fast_speed_button(
 ) {
     for (interaction, mut background_color) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 game_speed.0 = true;
                 time.set_relative_speed(3.0);
                 background_color.0 = BUTTON_BACKGROUND_COLOR_ACTIVE;

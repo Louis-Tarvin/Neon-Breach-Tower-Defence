@@ -34,13 +34,11 @@ pub fn draw_sidebar(
         commands
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Px(250.0), Val::Auto),
+                    width: Val::Px(250.0), 
+height: Val::Auto,
                     position_type: PositionType::Absolute,
-                    position: UiRect {
                         left: Val::Px(0.0),
                         top: Val::Px(50.0),
-                        ..Default::default()
-                    },
                     flex_direction: FlexDirection::Column,
                     padding: UiRect::all(Val::Px(10.0)),
                     ..Default::default()
@@ -58,7 +56,8 @@ pub fn draw_sidebar(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                                    width: Val::Percent(100.0), 
+height: Val::Px(50.0),
                                     align_items: AlignItems::Center,
                                     justify_content: JustifyContent::Center,
                                     ..Default::default()
@@ -82,7 +81,8 @@ pub fn draw_sidebar(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Px(30.0)),
+                                    width: Val::Percent(100.0), 
+height: Val::Px(30.0),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -104,7 +104,8 @@ pub fn draw_sidebar(
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    size: Size::new(Val::Percent(100.0), Val::Px(120.0)),
+                                    width: Val::Percent(100.0), 
+height: Val::Px(120.0),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -120,7 +121,8 @@ pub fn draw_sidebar(
                                         },
                                     ),
                                     style: Style {
-                                        max_size: Size::new(Val::Px(200.0), Val::Px(120.0)),
+                                        max_width: Val::Px(200.0), 
+max_height: Val::Px(120.0),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -131,7 +133,8 @@ pub fn draw_sidebar(
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                                        width: Val::Percent(100.0), 
+height: Val::Px(50.0),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -140,7 +143,8 @@ pub fn draw_sidebar(
                                     parent
                                         .spawn(ButtonBundle {
                                             style: Style {
-                                                size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                                                width: Val::Percent(100.0), 
+height: Val::Px(50.0),
                                                 justify_content: JustifyContent::Center,
                                                 align_items: AlignItems::Center,
                                                 ..Default::default()
@@ -195,7 +199,7 @@ pub fn handle_toggle_rotation_button(
 ) {
     for (interaction, mut background_color) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 if let Some(grid_pos) = ui_data.selected_pos {
                     if let Some(entity) = map.placements.get(&grid_pos) {
                         let (entity, mut transform, mut laser, children) =

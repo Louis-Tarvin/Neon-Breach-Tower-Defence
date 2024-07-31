@@ -2,6 +2,7 @@
 
 use audio::{AudioAssets, DrumsChannel, MusicChannel, SoundChannel};
 use bevy::prelude::*;
+use bevy::window::WindowMode;
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 use bevy_kira_audio::{AudioApp, AudioPlugin};
 use state::{

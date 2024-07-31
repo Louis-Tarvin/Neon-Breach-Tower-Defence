@@ -20,8 +20,8 @@ default = ["bevy/animation", "bevy/bevy_asset", "bevy/bevy_scene", "bevy/bevy_wi
 
 
 [dependencies]
-bevy = { version = "0.10.1", default-features = false }
-bevy_asset_loader = "0.15.0"
-bevy_kira_audio = { version = "0.15", default-features = false, features = ["wav", "ogg"] }
+bevy = { version = "0.11.3", default-features = false }
+bevy_asset_loader = { version = "0.17.0" }
+bevy_kira_audio = { version = "0.17.0", default-features = false, features = ["wav", "ogg"] }
 rand = "0.8.5"
-bevy_jornet = "0.4.0"
+bevy_jornet = "0.5.2"

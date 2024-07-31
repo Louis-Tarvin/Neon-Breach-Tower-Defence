@@ -124,7 +124,7 @@ impl Distribution<Debuff> for Standard {
 #[derive(Component)]
 pub struct SpeedUpPoint(pub f32);
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub struct AddDebuff {
     pub grid_pos: (i8, i8),
     pub debuff: Debuff,

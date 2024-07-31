@@ -24,7 +24,8 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 align_items: AlignItems::Center,
                 justify_content: JustifyContent::Center,
                 flex_direction: FlexDirection::Column,
@@ -38,7 +39,8 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Auto, Val::Auto),
+                        width: Val::Auto,
+                        height: Val::Auto,
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
                         ..Default::default()
@@ -62,7 +64,8 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(400.0)),
+                        width: Val::Percent(100.0),
+                        height: Val::Px(400.0),
                         align_items: AlignItems::Center,
                         justify_content: JustifyContent::Center,
                         flex_direction: FlexDirection::Row,
@@ -89,7 +92,7 @@ pub fn handle_tower_options(
 ) {
     for (tower_option, interaction, mut background_color) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 sound_channel.play(audio_assets.blip2.clone());
                 if let UiState::PickingTower(ref mut options) = ui_state.state {
                     let tower = options.remove(tower_option.index);
