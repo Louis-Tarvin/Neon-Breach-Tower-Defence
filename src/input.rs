@@ -20,7 +20,7 @@ pub fn grid_click_handler(
     mut ui_data: ResMut<UiData>,
     mut ui_state: ResMut<UiStateResource>,
     mut inventory: ResMut<Inventory>,
-    mouse_input: Res<Input<MouseButton>>,
+    mouse_input: Res<ButtonInput<MouseButton>>,
     windows: Query<&Window>,
     camera: Query<(&Camera, &GlobalTransform)>,
     game_assets: Res<GameAssets>,

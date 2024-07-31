@@ -1,7 +1,7 @@
 #![allow(clippy::too_many_arguments, clippy::type_complexity)]
 
 use bevy::prelude::*;
-use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
+use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::{AudioApp, AudioPlugin};
 
 use audio::{AudioAssets, DrumsChannel, MusicChannel, SoundChannel};
@@ -19,16 +19,18 @@ mod state;
 mod tower;
 mod ui;
 
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(AudioPlugin)
-        .add_state::<state::State>()
+        .init_state::<state::State>()
         .add_loading_state(
-            LoadingState::new(state::State::Loading).continue_to_state(state::State::MainMenu),
+            LoadingState::new(state::State::Loading).continue_to_state(state::State::MainMenu)
+                .load_collection::<GameAssets>()
+                .load_collection::<AudioAssets>()
+            ,
         )
-        .add_collection_to_loading_state::<_, GameAssets>(state::State::Loading)
-        .add_collection_to_loading_state::<_, AudioAssets>(state::State::Loading)
         .add_plugins(MainMenuPlugin)
         .add_plugins(GamePlugin)
         .add_plugins(ResultsPlugin)

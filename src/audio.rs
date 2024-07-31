@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_asset_loader::prelude::AssetCollection;
+use bevy_asset_loader::prelude::*;
 use bevy_kira_audio::AudioSource;
 
-#[derive(AssetCollection, Resource)]
+#[derive(Resource, AssetCollection)]
 pub struct AudioAssets {
     #[asset(path = "audio/bgm-main.ogg")]
     pub bgm_main: Handle<AudioSource>,
