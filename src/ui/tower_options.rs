@@ -31,7 +31,7 @@ pub fn present_tower_options(mut commands: Commands, font: Handle<Font>, towers:
                 flex_direction: FlexDirection::Column,
                 ..Default::default()
             },
-            background_color: Color::rgba(0.0, 0.0, 0.0, 0.5).into(),
+            background_color: Color::srgba(0.0, 0.0, 0.0, 0.5).into(),
             ..Default::default()
         })
         .insert(TowerOptionsRoot)

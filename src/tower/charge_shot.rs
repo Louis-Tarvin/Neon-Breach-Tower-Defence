@@ -11,7 +11,7 @@ use crate::{
     state::loading::GameAssets,
     ui::constants::BLUE,
 };
-
+use crate::ui::legacy_mul_f32;
 use super::{Projectile, RangeIndicator, RotatingTurret, TargetMode, Tower, TowerPlaced};
 
 #[derive(Component, Debug)]
@@ -146,7 +146,7 @@ pub fn shoot(
                         .spawn(SpriteBundle {
                             texture: game_assets.bullet.clone(),
                             sprite: Sprite {
-                                color: BLUE * 5.0,
+                                color: legacy_mul_f32(BLUE, 5.0),
                                 ..Default::default()
                             },
                             transform: Transform::from_translation(projectile_pos),
@@ -199,7 +199,7 @@ pub fn spawn_charge_shot(
             parent
                 .spawn(MaterialMesh2dBundle {
                     mesh: meshes.add(Circle::new(1.5 * 32.0)).into(),
-                    material: materials.add(ColorMaterial::from(Color::rgba(0.8, 0.4, 0.4, 0.2))),
+                    material: materials.add(ColorMaterial::from(Color::srgba(0.8, 0.4, 0.4, 0.2))),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
                     visibility: Visibility::Hidden,
                     ..Default::default()

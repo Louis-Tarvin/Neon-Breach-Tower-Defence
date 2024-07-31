@@ -225,7 +225,7 @@ pub fn update_healthbar(
                         .spawn(SpriteBundle {
                             sprite: Sprite {
                                 custom_size: Some(Vec2::new(22.0, 4.0)),
-                                color: Color::rgb(0.0, 0.0, 0.0),
+                                color: Color::srgb(0.0, 0.0, 0.0),
                                 ..Default::default()
                             },
                             transform: Transform::from_translation(Vec3::new(0.0, -16.0, 6.0)),

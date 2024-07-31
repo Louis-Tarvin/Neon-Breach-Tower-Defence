@@ -62,3 +62,8 @@ pub fn update_selection_indicator(
         }
     }
 }
+
+pub fn legacy_mul_f32(color: Color, scale: f32) -> Color {
+    let rgba = color.to_linear();
+    Color::srgb(rgba.red * scale, rgba.green * scale, rgba.blue * scale)
+}

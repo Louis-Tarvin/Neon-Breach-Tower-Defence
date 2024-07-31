@@ -271,7 +271,7 @@ pub fn create_ghost(
                     },
                     transform: Transform::from_xyz(0.0, 0.0, -1.0),
                     sprite: Sprite {
-                        color: Color::rgba(1.0, 1.0, 1.0, 0.5),
+                        color: Color::srgba(1.0, 1.0, 1.0, 0.5),
                         ..Default::default()
                     },
                     ..Default::default()
