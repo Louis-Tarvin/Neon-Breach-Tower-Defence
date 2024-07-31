@@ -17,12 +17,12 @@ impl Plugin for ResultsPlugin {
         app.insert_resource(Scores::default());
         if let Some(id) = option_env!("JORNET_ID") {
             if let Some(key) = option_env!("JORNET_KEY") {
-                app.add_plugin(JornetPlugin::with_leaderboard(id, key))
-                    .add_system(save_score.in_schedule(OnEnter(State::Results)))
+                app.add_plugins(JornetPlugin::with_leaderboard(id, key))
+                    .add_systems(OnEnter(State::Results), save_score)
                     .add_systems(Update, draw_leaderboard.run_if(in_state(State::Results)))
                     .add_systems(Update, handle_main_menu_button.run_if(in_state(State::Results)))
                     .add_systems(Update, refresh_after_timer.run_if(in_state(State::Results)))
-                    .add_system(cleanup.in_schedule(OnExit(State::Results)));
+                    .add_systems(OnExit(State::Results), cleanup);
             }
         }
     }

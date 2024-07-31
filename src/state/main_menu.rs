@@ -24,10 +24,10 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup.in_schedule(OnEnter(super::State::MainMenu)))
-            .add_systems(Update, button_system.run_if(in_state(super::State::MainMenu)))
-            .add_systems(Update, update_button_volume_text.run_if(in_state(super::State::MainMenu)))
-            .add_system(cleanup.in_schedule(OnExit(super::State::MainMenu)));
+        app.add_systems(OnEnter(State::MainMenu), setup)
+            .add_systems(Update, button_system.run_if(in_state(State::MainMenu)))
+            .add_systems(Update, update_button_volume_text.run_if(in_state(State::MainMenu)))
+            .add_systems(OnExit(State::MainMenu), cleanup);
     }
 }
 

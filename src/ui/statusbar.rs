@@ -186,7 +186,7 @@ pub fn draw_status_bar(mut commands: Commands, game_assets: Res<GameAssets>) {
 pub fn handle_normal_speed_button(
     mut query: Query<(&Interaction, &mut BackgroundColor), With<NormalSpeedButton>>,
     mut game_speed: ResMut<GameSpeed>,
-    mut time: ResMut<Time>,
+    mut time: ResMut<Time<Virtual>>,
 ) {
     for (interaction, mut background_color) in query.iter_mut() {
         match interaction {
@@ -212,7 +212,7 @@ pub fn handle_normal_speed_button(
 pub fn handle_fast_speed_button(
     mut query: Query<(&Interaction, &mut BackgroundColor), With<FastSpeedButton>>,
     mut game_speed: ResMut<GameSpeed>,
-    mut time: ResMut<Time>,
+    mut time: ResMut<Time<Virtual>>,
 ) {
     for (interaction, mut background_color) in query.iter_mut() {
         match interaction {

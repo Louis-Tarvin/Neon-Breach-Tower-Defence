@@ -141,7 +141,7 @@ pub fn mouse_hover_handler(
     mut children_query: Query<&mut Visibility, With<RangeIndicator>>,
     mut hover_pos: ResMut<HoverPosition>,
 ) {
-    for event in cursor_events.iter() {
+    for event in cursor_events.read() {
         let mouse_pos = event.position;
         let (camera, camera_transform) = camera.get_single().unwrap();
 

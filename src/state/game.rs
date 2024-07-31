@@ -12,9 +12,9 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<tower::TowerPlaced>()
             .add_event::<tower::debuffs::AddDebuff>()
-            .add_system(setup.in_schedule(OnEnter(super::State::Game)))
-            .add_system(grid::load_map.in_schedule(OnEnter(super::State::Game)))
-            .add_system(statusbar::draw_status_bar.in_schedule(OnEnter(super::State::Game)))
+            .add_systems(OnEnter(super::State::Game), setup)
+            .add_systems(OnEnter(super::State::Game), grid::load_map)
+            .add_systems(OnEnter(super::State::Game), statusbar::draw_status_bar)
             .add_systems(Update, gameplay::gameloop.run_if(in_state(super::State::Game))) // gameplay::gameloop.in_set(OnUpdate(super::State::Game)))
             .add_systems(Update, gameplay::start_next_wave.run_if(in_state(super::State::Game)))
             .add_systems(Update, gameplay::game_over_check.run_if(in_state(super::State::Game)))
@@ -58,7 +58,7 @@ impl Plugin for GamePlugin {
             .add_systems(Update, statusbar::handle_fast_speed_button.run_if(in_state(super::State::Game)))
             .add_systems(Update, input::grid_click_handler.run_if(in_state(super::State::Game)))
             .add_systems(Update, input::mouse_hover_handler.run_if(in_state(super::State::Game)))
-            .add_system(cleanup.in_schedule(OnExit(super::State::Game)));
+            .add_systems(OnExit(super::State::Game), cleanup);
     }
 }
 

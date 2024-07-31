@@ -10,18 +10,29 @@ opt-level = 3
 [profile.dev]
 opt-level = 1
 
-[features]
-dev = ["bevy/bevy_dylib"]
-
-# Bevy defaults minus audio and some other not needed things
-# see https://github.com/bevyengine/bevy/blob/main/Cargo.toml#L31-L54
-default = ["bevy/animation", "bevy/bevy_asset", "bevy/bevy_scene", "bevy/bevy_winit", "bevy/bevy_core_pipeline", "bevy/bevy_pbr", "bevy/bevy_gltf", "bevy/bevy_render", "bevy/bevy_sprite", "bevy/bevy_text", "bevy/bevy_ui", "bevy/png", "bevy/hdr", "bevy/zstd", "bevy/x11", "bevy/ktx2", "bevy/filesystem_watcher", "bevy/tonemapping_luts"]
-
-
-
 [dependencies]
-bevy = { version = "0.11.3", default-features = false }
-bevy_asset_loader = { version = "0.17.0" }
-bevy_kira_audio = { version = "0.17.0", default-features = false, features = ["wav", "ogg"] }
+bevy = { version = "0.12.1", default-features = false, features = [
+    "animation",
+    "bevy_asset",
+    "bevy_scene",
+    "bevy_winit",
+    "bevy_core_pipeline",
+    "bevy_pbr",
+    "bevy_gltf",
+    "bevy_render",
+    "bevy_sprite",
+    "bevy_text",
+    "bevy_ui",
+    "png",
+    "hdr",
+    "zstd",
+    "x11",
+    "ktx2",
+    "file_watcher",  # Changed from "filesystem_watcher"
+    "tonemapping_luts",
+    "dynamic_linking"  # Optional: remove if not needed
+]}
+bevy_asset_loader = { version = "0.18.0" }
+bevy_kira_audio = { version = "0.18.0", default-features = false, features = ["wav", "ogg"] }
 rand = "0.8.5"
-bevy_jornet = "0.5.2"
+bevy_jornet = "0.6.0"
