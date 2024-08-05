@@ -4,6 +4,8 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use rand::seq::SliceRandom;
 
+use super::{Projectile, RangeIndicator, RotatingTurret, TargetMode, Tower, TowerPlaced};
+use crate::ui::legacy_mul_f32;
 use crate::{
     audio::{AudioAssets, SoundChannel},
     enemies::Enemy,
@@ -11,8 +13,6 @@ use crate::{
     state::loading::GameAssets,
     ui::constants::BLUE,
 };
-use crate::ui::legacy_mul_f32;
-use super::{Projectile, RangeIndicator, RotatingTurret, TargetMode, Tower, TowerPlaced};
 
 #[derive(Component, Debug)]
 pub struct ChargeShot {

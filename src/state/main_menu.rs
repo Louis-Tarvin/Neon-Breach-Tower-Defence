@@ -26,7 +26,10 @@ impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(OnEnter(State::MainMenu), setup)
             .add_systems(Update, button_system.run_if(in_state(State::MainMenu)))
-            .add_systems(Update, update_button_volume_text.run_if(in_state(State::MainMenu)))
+            .add_systems(
+                Update,
+                update_button_volume_text.run_if(in_state(State::MainMenu)),
+            )
             .add_systems(OnExit(State::MainMenu), cleanup);
     }
 }

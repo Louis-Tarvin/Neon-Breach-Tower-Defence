@@ -19,17 +19,16 @@ mod state;
 mod tower;
 mod ui;
 
-
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
         .add_plugins(AudioPlugin)
         .init_state::<state::State>()
         .add_loading_state(
-            LoadingState::new(state::State::Loading).continue_to_state(state::State::MainMenu)
+            LoadingState::new(state::State::Loading)
+                .continue_to_state(state::State::MainMenu)
                 .load_collection::<GameAssets>()
-                .load_collection::<AudioAssets>()
-            ,
+                .load_collection::<AudioAssets>(),
         )
         .add_plugins(MainMenuPlugin)
         .add_plugins(GamePlugin)

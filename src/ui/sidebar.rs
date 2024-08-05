@@ -34,11 +34,11 @@ pub fn draw_sidebar(
         commands
             .spawn(NodeBundle {
                 style: Style {
-                    width: Val::Px(250.0), 
-height: Val::Auto,
+                    width: Val::Px(250.0),
+                    height: Val::Auto,
                     position_type: PositionType::Absolute,
-                        left: Val::Px(0.0),
-                        top: Val::Px(50.0),
+                    left: Val::Px(0.0),
+                    top: Val::Px(50.0),
                     flex_direction: FlexDirection::Column,
                     padding: UiRect::all(Val::Px(10.0)),
                     ..Default::default()
@@ -56,8 +56,8 @@ height: Val::Auto,
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    width: Val::Percent(100.0), 
-height: Val::Px(50.0),
+                                    width: Val::Percent(100.0),
+                                    height: Val::Px(50.0),
                                     align_items: AlignItems::Center,
                                     justify_content: JustifyContent::Center,
                                     ..Default::default()
@@ -81,8 +81,8 @@ height: Val::Px(50.0),
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    width: Val::Percent(100.0), 
-height: Val::Px(30.0),
+                                    width: Val::Percent(100.0),
+                                    height: Val::Px(30.0),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -104,8 +104,8 @@ height: Val::Px(30.0),
                         parent
                             .spawn(NodeBundle {
                                 style: Style {
-                                    width: Val::Percent(100.0), 
-height: Val::Px(120.0),
+                                    width: Val::Percent(100.0),
+                                    height: Val::Px(120.0),
                                     ..Default::default()
                                 },
                                 ..Default::default()
@@ -121,8 +121,8 @@ height: Val::Px(120.0),
                                         },
                                     ),
                                     style: Style {
-                                        max_width: Val::Px(200.0), 
-max_height: Val::Px(120.0),
+                                        max_width: Val::Px(200.0),
+                                        max_height: Val::Px(120.0),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -133,8 +133,8 @@ max_height: Val::Px(120.0),
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        width: Val::Percent(100.0), 
-height: Val::Px(50.0),
+                                        width: Val::Percent(100.0),
+                                        height: Val::Px(50.0),
                                         ..Default::default()
                                     },
                                     ..Default::default()
@@ -143,8 +143,8 @@ height: Val::Px(50.0),
                                     parent
                                         .spawn(ButtonBundle {
                                             style: Style {
-                                                width: Val::Percent(100.0), 
-height: Val::Px(50.0),
+                                                width: Val::Percent(100.0),
+                                                height: Val::Px(50.0),
                                                 justify_content: JustifyContent::Center,
                                                 align_items: AlignItems::Center,
                                                 ..Default::default()
