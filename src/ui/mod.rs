@@ -33,7 +33,6 @@ pub struct UiStateResource {
 
 #[derive(Resource, Debug, Default)]
 pub struct UiData {
-    pub hovered_pos: Option<(i8, i8)>,
     pub selected_pos: Option<(i8, i8)>,
 }
 

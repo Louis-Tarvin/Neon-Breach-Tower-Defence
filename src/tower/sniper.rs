@@ -82,7 +82,7 @@ pub fn shoot(
                     }
                 }
                 TargetMode::Closest => {
-                    let mut closest_distance = std::f32::MAX;
+                    let mut closest_distance = f32::MAX;
                     for x in -max_range..=max_range {
                         for y in -max_range..=max_range {
                             let grid_pos = Map::get_grid_pos(transform.translation.truncate());

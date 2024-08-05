@@ -141,7 +141,7 @@ pub fn update_enemy_grid_pos(
             enemy.current_grid_pos = (grid_pos.0, grid_pos.1);
             map.enemies
                 .entry(enemy.current_grid_pos)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(entity);
         }
     }
