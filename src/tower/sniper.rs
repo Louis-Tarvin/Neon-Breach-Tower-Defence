@@ -4,6 +4,8 @@ use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_kira_audio::{AudioChannel, AudioControl};
 use rand::seq::SliceRandom;
 
+use super::{Projectile, RangeIndicator, RotatingTurret, TargetMode, Tower, TowerPlaced};
+use crate::ui::legacy_mul_f32;
 use crate::{
     audio::{AudioAssets, SoundChannel},
     enemies::Enemy,
@@ -11,8 +13,6 @@ use crate::{
     state::loading::GameAssets,
     ui::constants::RED,
 };
-
-use super::{Projectile, RangeIndicator, RotatingTurret, TargetMode, Tower, TowerPlaced};
 
 #[derive(Component, Debug)]
 pub struct Sniper {
@@ -82,7 +82,7 @@ pub fn shoot(
                     }
                 }
                 TargetMode::Closest => {
-                    let mut closest_distance = std::f32::MAX;
+                    let mut closest_distance = f32::MAX;
                     for x in -max_range..=max_range {
                         for y in -max_range..=max_range {
                             let grid_pos = Map::get_grid_pos(transform.translation.truncate());
@@ -144,7 +144,7 @@ pub fn shoot(
                         .spawn(SpriteBundle {
                             texture: game_assets.bullet.clone(),
                             sprite: Sprite {
-                                color: RED * 5.0,
+                                color: legacy_mul_f32(RED, 5.0),
                                 ..Default::default()
                             },
                             transform: Transform::from_translation(projectile_pos),
@@ -196,8 +196,8 @@ pub fn spawn_sniper(
             // Circle used to show the range of the tower
             parent
                 .spawn(MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Circle::new(3.5 * 32.0).into()).into(),
-                    material: materials.add(ColorMaterial::from(Color::rgba(0.8, 0.4, 0.4, 0.2))),
+                    mesh: meshes.add(Circle::new(3.5 * 32.0)).into(),
+                    material: materials.add(ColorMaterial::from(Color::srgba(0.8, 0.4, 0.4, 0.2))),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
                     visibility: Visibility::Hidden,
                     ..Default::default()

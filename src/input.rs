@@ -20,7 +20,7 @@ pub fn grid_click_handler(
     mut ui_data: ResMut<UiData>,
     mut ui_state: ResMut<UiStateResource>,
     mut inventory: ResMut<Inventory>,
-    mouse_input: Res<Input<MouseButton>>,
+    mouse_input: Res<ButtonInput<MouseButton>>,
     windows: Query<&Window>,
     camera: Query<(&Camera, &GlobalTransform)>,
     game_assets: Res<GameAssets>,
@@ -141,7 +141,7 @@ pub fn mouse_hover_handler(
     mut children_query: Query<&mut Visibility, With<RangeIndicator>>,
     mut hover_pos: ResMut<HoverPosition>,
 ) {
-    for event in cursor_events.iter() {
+    for event in cursor_events.read() {
         let mouse_pos = event.position;
         let (camera, camera_transform) = camera.get_single().unwrap();
 

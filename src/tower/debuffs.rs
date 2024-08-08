@@ -124,7 +124,7 @@ impl Distribution<Debuff> for Standard {
 #[derive(Component)]
 pub struct SpeedUpPoint(pub f32);
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub struct AddDebuff {
     pub grid_pos: (i8, i8),
     pub debuff: Debuff,
@@ -136,7 +136,7 @@ pub fn debuff_event_handler(
     mut query: Query<&mut Tower>,
     map: Res<Map>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         if let Some(entity) = map.placements.get(&event.grid_pos) {
             let mut tower = query.get_mut(*entity).expect("Tower entity not found");
             if let Debuff::Immune = tower.debuff {

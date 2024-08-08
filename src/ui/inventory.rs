@@ -37,13 +37,12 @@ pub fn draw_inventory(
         commands
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Px(300.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Px(300.0),
+
                     position_type: PositionType::Absolute,
-                    position: UiRect {
-                        left: Val::Px(0.0),
-                        bottom: Val::Px(0.0),
-                        ..Default::default()
-                    },
+                    left: Val::Px(0.0),
+                    bottom: Val::Px(0.0),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -66,7 +65,9 @@ pub fn draw_tower_card(
 ) {
     let mut card = parent.spawn(ButtonBundle {
         style: Style {
-            size: Size::new(Val::Px(200.0), Val::Px(300.0)),
+            width: Val::Px(200.0),
+            height: Val::Px(300.0),
+
             margin: UiRect::all(Val::Px(10.0)),
             padding: UiRect::all(Val::Px(5.0)),
             flex_direction: FlexDirection::Column,
@@ -85,7 +86,8 @@ pub fn draw_tower_card(
         parent
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Px(50.0),
                     align_items: AlignItems::Center,
                     justify_content: JustifyContent::Center,
                     ..Default::default()
@@ -109,7 +111,8 @@ pub fn draw_tower_card(
         parent
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Px(60.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Px(60.0),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -125,7 +128,8 @@ pub fn draw_tower_card(
                         },
                     ),
                     style: Style {
-                        max_size: Size::new(Val::Px(190.0), Val::Px(60.0)),
+                        max_width: Val::Px(190.0),
+                        max_height: Val::Px(60.0),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -135,7 +139,8 @@ pub fn draw_tower_card(
         parent
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Px(30.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Px(30.0),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -157,7 +162,8 @@ pub fn draw_tower_card(
         parent
             .spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Px(100.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Px(100.0),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -173,7 +179,8 @@ pub fn draw_tower_card(
                         },
                     ),
                     style: Style {
-                        max_size: Size::new(Val::Px(190.0), Val::Px(120.0)),
+                        max_width: Val::Px(190.0),
+                        max_height: Val::Px(120.0),
                         ..Default::default()
                     },
                     ..Default::default()
@@ -193,7 +200,7 @@ pub fn handle_inventory_buttons(
     }
     for (inventory_tower, interaction, mut background_color) in query.iter_mut() {
         match interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 sound_channel.play(audio_assets.blip2.clone());
                 match ui_state.state {
                     UiState::PlacingTower(i) => {
@@ -264,7 +271,7 @@ pub fn create_ghost(
                     },
                     transform: Transform::from_xyz(0.0, 0.0, -1.0),
                     sprite: Sprite {
-                        color: Color::rgba(1.0, 1.0, 1.0, 0.5),
+                        color: Color::srgba(1.0, 1.0, 1.0, 0.5),
                         ..Default::default()
                     },
                     ..Default::default()

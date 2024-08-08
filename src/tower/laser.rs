@@ -192,8 +192,8 @@ pub fn spawn_laser_beam(
     };
     parent
         .spawn(MaterialMesh2dBundle {
-            mesh: meshes.add(shape::Quad::new(beam_dimensions).into()).into(),
-            material: materials.add(ColorMaterial::from(Color::rgba(
+            mesh: meshes.add(Rectangle::from_size(beam_dimensions)).into(),
+            material: materials.add(ColorMaterial::from(Color::srgba(
                 1.74 * 2.0,
                 1.15 * 2.0,
                 0.74 * 2.0,

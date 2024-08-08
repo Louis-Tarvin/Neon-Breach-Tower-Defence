@@ -444,7 +444,7 @@ pub fn gameloop(
 }
 
 pub fn start_next_wave(
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
     mut game_manager: ResMut<GameManager>,
     drums_channel: Res<AudioChannel<DrumsChannel>>,
     volume_settings: Res<VolumeSettings>,

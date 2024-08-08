@@ -32,8 +32,8 @@ pub fn spawn_jammer(
             // Circle used to show the range of the tower
             parent
                 .spawn(MaterialMesh2dBundle {
-                    mesh: meshes.add(shape::Circle::new(1.5 * 32.0).into()).into(),
-                    material: materials.add(ColorMaterial::from(Color::rgba(0.8, 0.4, 0.4, 0.2))),
+                    mesh: meshes.add(Circle::new(1.5 * 32.0)).into(),
+                    material: materials.add(ColorMaterial::from(Color::srgba(0.8, 0.4, 0.4, 0.2))),
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 5.0)),
                     visibility: Visibility::Hidden,
                     ..Default::default()

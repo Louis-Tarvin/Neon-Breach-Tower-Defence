@@ -73,7 +73,8 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             style: Style {
                 margin: UiRect::all(Val::Auto),
                 padding: UiRect::all(Val::Px(20.)),
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 flex_direction: FlexDirection::ColumnReverse,

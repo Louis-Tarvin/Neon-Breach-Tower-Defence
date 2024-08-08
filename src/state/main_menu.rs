@@ -24,10 +24,13 @@ pub struct MainMenuPlugin;
 
 impl Plugin for MainMenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup.in_schedule(OnEnter(super::State::MainMenu)))
-            .add_system(button_system.in_set(OnUpdate(super::State::MainMenu)))
-            .add_system(update_button_volume_text.in_set(OnUpdate(super::State::MainMenu)))
-            .add_system(cleanup.in_schedule(OnExit(super::State::MainMenu)));
+        app.add_systems(OnEnter(State::MainMenu), setup)
+            .add_systems(Update, button_system.run_if(in_state(State::MainMenu)))
+            .add_systems(
+                Update,
+                update_button_volume_text.run_if(in_state(State::MainMenu)),
+            )
+            .add_systems(OnExit(State::MainMenu), cleanup);
     }
 }
 
@@ -49,8 +52,10 @@ fn setup(
     commands
         .spawn(ImageBundle {
             style: Style {
-                size: Size::new(Val::Auto, Val::Percent(100.0)),
-                max_size: Size::new(Val::Px(1920.0), Val::Px(1080.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
+                max_width: Val::Px(1920.0),
+                max_height: Val::Percent(1080.0),
                 flex_direction: FlexDirection::Column,
                 justify_content: JustifyContent::Center,
                 aspect_ratio: Some(1.778),
@@ -67,7 +72,8 @@ fn setup(
             // Spacer
             parent.spawn(NodeBundle {
                 style: Style {
-                    size: Size::new(Val::Percent(100.0), Val::Px(300.0)),
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -80,7 +86,8 @@ fn setup(
 
 fn add_button(parent: &mut ChildBuilder, text: &str, button: MenuButton, font: Handle<Font>) {
     let button_style = Style {
-        size: Size::new(Val::Px(210.0), Val::Px(65.0)),
+        width: Val::Px(210.0),
+        height: Val::Px(65.0),
         // center button
         margin: UiRect::all(Val::Px(20.0)),
         // horizontally center child text
@@ -120,7 +127,7 @@ fn button_system(
 ) {
     for (button, interaction, mut color) in &mut interaction_query {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 *color = BUTTON_BACKGROUND_COLOR_PRESSED.into();
                 match button {
                     MenuButton::Start => next_state.set(State::Game),

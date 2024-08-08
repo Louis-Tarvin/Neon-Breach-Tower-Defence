@@ -17,12 +17,15 @@ impl Plugin for ResultsPlugin {
         app.insert_resource(Scores::default());
         if let Some(id) = option_env!("JORNET_ID") {
             if let Some(key) = option_env!("JORNET_KEY") {
-                app.add_plugin(JornetPlugin::with_leaderboard(id, key))
-                    .add_system(save_score.in_schedule(OnEnter(State::Results)))
-                    .add_system(draw_leaderboard.in_set(OnUpdate(State::Results)))
-                    .add_system(handle_main_menu_button.in_set(OnUpdate(State::Results)))
-                    .add_system(refresh_after_timer.in_set(OnUpdate(State::Results)))
-                    .add_system(cleanup.in_schedule(OnExit(State::Results)));
+                app.add_plugins(JornetPlugin::with_leaderboard(id, key))
+                    .add_systems(OnEnter(State::Results), save_score)
+                    .add_systems(Update, draw_leaderboard.run_if(in_state(State::Results)))
+                    .add_systems(
+                        Update,
+                        handle_main_menu_button.run_if(in_state(State::Results)),
+                    )
+                    .add_systems(Update, refresh_after_timer.run_if(in_state(State::Results)))
+                    .add_systems(OnExit(State::Results), cleanup);
             }
         }
     }
@@ -69,7 +72,8 @@ fn draw_leaderboard(
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 flex_direction: FlexDirection::Column,
@@ -84,7 +88,8 @@ fn draw_leaderboard(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(70.0)),
+                        width: Val::Percent(100.0),
+                        height: Val::Px(70.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
@@ -108,7 +113,8 @@ fn draw_leaderboard(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Px(800.0), Val::Auto),
+                        width: Val::Px(800.),
+                        height: Val::Auto,
                         flex_direction: FlexDirection::Column,
                         ..Default::default()
                     },
@@ -125,7 +131,9 @@ fn draw_leaderboard(
                             parent
                                 .spawn(NodeBundle {
                                     style: Style {
-                                        size: Size::new(Val::Percent(100.0), Val::Px(70.0)),
+                                        width: Val::Percent(100.0),
+                                        height: Val::Px(70.0),
+
                                         justify_content: JustifyContent::Center,
                                         align_items: AlignItems::Center,
                                         ..Default::default()
@@ -157,7 +165,9 @@ fn draw_leaderboard(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                        width: Val::Percent(100.0),
+                        height: Val::Px(50.0),
+
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
@@ -185,7 +195,8 @@ fn draw_leaderboard(
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(100.0), Val::Px(50.0)),
+                        width: Val::Percent(100.0),
+                        height: Val::Px(50.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
@@ -212,7 +223,8 @@ fn draw_leaderboard(
             parent
                 .spawn(ButtonBundle {
                     style: Style {
-                        size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                        width: Val::Px(200.0),
+                        height: Val::Px(50.0),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
@@ -240,7 +252,8 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
     parent
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Px(40.0)),
+                width: Val::Percent(100.0),
+                height: Val::Px(40.0),
                 ..Default::default()
             },
             ..Default::default()
@@ -249,7 +262,9 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(33.3), Val::Px(40.0)),
+                        width: Val::Percent(33.3),
+                        height: Val::Px(40.0),
+
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
@@ -271,7 +286,8 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(33.3), Val::Px(40.0)),
+                        width: Val::Percent(33.3),
+                        height: Val::Px(40.0),
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
@@ -293,7 +309,8 @@ fn draw_leaderboard_row(parent: &mut ChildBuilder, font: Handle<Font>, score: Sc
             parent
                 .spawn(NodeBundle {
                     style: Style {
-                        size: Size::new(Val::Percent(33.3), Val::Px(40.0)),
+                        width: Val::Percent(33.3),
+                        height: Val::Px(40.0),
                         justify_content: JustifyContent::Center,
                         ..Default::default()
                     },
@@ -339,7 +356,7 @@ fn handle_main_menu_button(
 ) {
     for (interaction, mut background_color) in interaction_query.iter_mut() {
         match *interaction {
-            Interaction::Clicked => {
+            Interaction::Pressed => {
                 next_state.set(State::MainMenu);
                 sound_channel.play(audio_assets.blip2.clone());
             }

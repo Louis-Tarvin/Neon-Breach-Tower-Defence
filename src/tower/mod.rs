@@ -150,7 +150,7 @@ impl Tower {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Event)]
 pub struct TowerPlaced {
     pub grid_pos: (i8, i8),
 }
@@ -164,7 +164,7 @@ pub fn handle_tower_placement(
     sound_channel: Res<AudioChannel<SoundChannel>>,
     audio_assets: Res<AudioAssets>,
 ) {
-    for event in events.iter() {
+    for event in events.read() {
         sound_channel.play(audio_assets.place.clone());
         let tower = query
             .get(
